@@ -265,12 +265,6 @@ body.menu-open {
     border: 1px solid #bee5eb;
 }
 
-.db-mode-banner code {
-    background: rgba(0, 0, 0, 0.06);
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
 .card {
     background: #fff;
     border-radius: 12px;

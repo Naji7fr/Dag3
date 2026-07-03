@@ -65,12 +65,6 @@
     <div class="nav-overlay" id="nav-overlay" hidden></div>
 
     <main class="page-content">
-        @if(config('kniploket.use_empty_database'))
-            <div class="alert alert-info db-mode-banner">
-                Lege database actief: <strong>{{ config('kniploket.database_name') }}</strong>
-                (zet <code>DB_USE_EMPTY=false</code> in .env voor testdata)
-            </div>
-        @endif
         @yield('content')
     </main>
 
