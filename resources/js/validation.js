@@ -115,6 +115,22 @@
         return true;
     }
 
+    function validateBestelproductForm(formElement) {
+        const aantalField = formElement.querySelector('#aantal');
+        const aantalValue = parseInt(normalizeValue(aantalField), 10);
+        let isValid = true;
+
+        if (!normalizeValue(aantalField)) {
+            isValid = setClientError(aantalField, 'Aantal is verplicht.') && isValid;
+        } else if (Number.isNaN(aantalValue) || aantalValue < 1) {
+            isValid = setClientError(aantalField, 'Aantal moet minimaal 1 zijn.') && isValid;
+        } else {
+            setClientError(aantalField, '');
+        }
+
+        return isValid;
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const klantForm = document.getElementById('klant-edit-form');
         if (klantForm) {
@@ -143,6 +159,15 @@
 
             searchForm.addEventListener('submit', function (event) {
                 if (!validatePostcodeSearchForm(searchForm)) {
+                    event.preventDefault();
+                }
+            });
+        }
+
+        const bestelproductForm = document.getElementById('bestelproduct-edit-form');
+        if (bestelproductForm) {
+            bestelproductForm.addEventListener('submit', function (event) {
+                if (!validateBestelproductForm(bestelproductForm)) {
                     event.preventDefault();
                 }
             });

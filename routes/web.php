@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BestellingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KlantController;
 use App\Http\Controllers\MedewerkerController;
@@ -21,6 +22,11 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/klanten/{klant}', [KlantController::class, 'show'])->name('klanten.show');
         Route::get('/klanten/{klant}/wijzigen', [KlantController::class, 'edit'])->name('klanten.edit');
         Route::put('/klanten/{klant}', [KlantController::class, 'update'])->name('klanten.update');
+
+        Route::get('/bestellingen', [BestellingController::class, 'index'])->name('bestellingen.index');
+        Route::get('/bestellingen/{bestelling}/producten', [BestellingController::class, 'producten'])->name('bestellingen.producten');
+        Route::get('/bestellingen/{bestelling}/producten/{productPerBestelling}/wijzigen', [BestellingController::class, 'editProduct'])->name('bestellingen.producten.edit');
+        Route::put('/bestellingen/{bestelling}/producten/{productPerBestelling}', [BestellingController::class, 'updateProduct'])->name('bestellingen.producten.update');
 
         Route::get('/medewerkers', [MedewerkerController::class, 'index'])->name('medewerkers.index');
         Route::get('/medewerkers/{medewerker}', [MedewerkerController::class, 'show'])->name('medewerkers.show');

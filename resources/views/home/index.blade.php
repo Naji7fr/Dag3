@@ -63,7 +63,11 @@
             <div class="module-card">
                 <h3>Bestellingen</h3>
                 <p>Bekijk en beheer klantbestellingen en bestelstatus.</p>
-                <a class="btn btn-outline" href="#">Openen</a>
+                @if(auth()->user()->isEigenaar())
+                    <a class="btn btn-outline" href="{{ route('bestellingen.index') }}">Openen</a>
+                @else
+                    <span class="module-disabled">Alleen voor eigenaar</span>
+                @endif
             </div>
         </div>
     </div>

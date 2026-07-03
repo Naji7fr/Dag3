@@ -248,6 +248,11 @@ body.menu-open {
     margin: 0 0 20px;
 }
 
+.page-title-sub {
+    color: #555;
+    font-weight: 600;
+}
+
 .alert {
     padding: 14px 18px;
     border-radius: 8px;
@@ -294,7 +299,8 @@ body.menu-open {
     flex-wrap: wrap;
 }
 
-.search-row input[type="text"] {
+.search-row input[type="text"],
+.search-row select {
     flex: 1;
     min-width: 220px;
     max-width: 420px;
@@ -320,6 +326,16 @@ body.menu-open {
     flex: 1;
     min-width: 220px;
     max-width: 420px;
+}
+
+.search-row select.input-error {
+    border-color: #b91c3c;
+}
+
+.btn-disabled {
+    opacity: 0.65;
+    cursor: default;
+    pointer-events: none;
 }
 
 .btn {
@@ -704,6 +720,7 @@ body.menu-open {
     }
 
     .search-row input[type="text"],
+    .search-row select,
     .search-row .custom-dropdown {
         max-width: none;
         width: 100%;

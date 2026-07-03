@@ -1,0 +1,90 @@
+@extends('layouts.app')
+
+@section('title', $pageTitle)
+
+@section('content')
+<div class="breadcrumbs">
+    <a href="{{ route('home') }}">Home</a> / Bestellingen
+</div>
+
+<h1 class="page-title">Overzicht bestellingen</h1>
+
+<div class="card search-card">
+    <form method="get" action="{{ route('bestellingen.index') }}" id="status-filter-form" novalidate>
+        <label for="status">Status selecteren</label>
+        <div class="search-row">
+            <select
+                id="status"
+                name="status"
+                @class(['input-error' => $errors->has('status')])
+            >
+                <option value="">Alle statussen</option>
+                @foreach($statussen as $statusOptie)
+                    <option value="{{ $statusOptie }}" @selected(old('status', $status ?? '') === $statusOptie)>
+                        {{ $statusOptie }}
+                    </option>
+                @endforeach
+            </select>
+            <button type="submit" class="btn btn-primary">Maak selectie</button>
+            <a href="{{ route('bestellingen.index') }}" class="btn btn-secondary">Reset</a>
+        </div>
+        @error('status')
+            <div class="field-error">{{ $message }}</div>
+        @enderror
+    </form>
+</div>
+
+<div class="card table-card">
+    <div class="table-meta">
+        <span>Gevonden bestellingen {{ $bestellingen->total() }} bestelling(en)</span>
+        @if($bestellingen->lastPage() > 1)
+            @include('partials.pagination', ['paginator' => $bestellingen])
+        @endif
+    </div>
+
+    <div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Bestelnr.</th>
+                <th>Klant</th>
+                <th>Relatienr.</th>
+                <th>Datum</th>
+                <th>Tijd</th>
+                <th>Status</th>
+                <th>Producten</th>
+                <th>Totaal</th>
+                <th>Actie</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($bestellingen as $bestelling)
+                <tr>
+                    <td>{{ $bestelling['BestelNummer'] }}</td>
+                    <td>{{ \App\Services\BestellingFormatter::formatKlantNaam($bestelling) }}</td>
+                    <td>{{ $bestelling['Relatienummer'] }}</td>
+                    <td>{{ \App\Services\BestellingFormatter::formatDatum($bestelling['Datum'] ?? '') }}</td>
+                    <td>{{ \App\Services\BestellingFormatter::formatTijd($bestelling['Tijd'] ?? '') }}</td>
+                    <td>{{ $bestelling['Bestelstatus'] }}</td>
+                    <td>{{ $bestelling['AantalProducten'] ?? 0 }}</td>
+                    <td>{{ \App\Services\BestellingFormatter::formatEuro((float) ($bestelling['Totaal'] ?? 0)) }}</td>
+                    <td>
+                        <a class="btn btn-outline" href="{{ route('bestellingen.producten', $bestelling['Id']) }}">Producten</a>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="9" class="empty-message">
+                        @if(!empty($status))
+                            Er zijn geen bestellingen bekend met deze status
+                        @else
+                            Er zijn geen bestellingen gevonden
+                        @endif
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+    </div>
+</div>
+@endsection
