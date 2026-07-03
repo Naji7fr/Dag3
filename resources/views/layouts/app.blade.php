@@ -27,7 +27,11 @@
 
             <nav class="main-nav" id="main-nav">
                 <a href="{{ route('home') }}" @class(['active' => ($activeNav ?? '') === 'home'])>Accounts</a>
-                <a href="#">Medewerkers</a>
+                @auth
+                    @if(auth()->user()->isEigenaar())
+                        <a href="{{ route('medewerkers.index') }}" @class(['active' => ($activeNav ?? '') === 'medewerkers'])>Medewerkers</a>
+                    @endif
+                @endauth
                 <a href="#">Beschikbaarheid</a>
                 @auth
                     @if(auth()->user()->isEigenaar())
