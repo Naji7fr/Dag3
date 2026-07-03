@@ -115,33 +115,6 @@
         return true;
     }
 
-    function berekenBestelproductTotaal(unitPrijs, aantal, korting, btwPercentage) {
-        const subtotaal = (unitPrijs * aantal) - korting;
-        const btw = subtotaal * (btwPercentage / 100);
-
-        return subtotaal + btw;
-    }
-
-    function formatEuro(bedrag) {
-        return '€ ' + bedrag.toFixed(2).replace('.', ',');
-    }
-
-    function updateBestelproductTotaal(formElement) {
-        const aantalField = formElement.querySelector('#aantal');
-        const totaalField = formElement.querySelector('#totaal');
-
-        if (!aantalField || !totaalField) {
-            return;
-        }
-
-        const unitPrijs = parseFloat(formElement.dataset.unitPrijs || '0');
-        const korting = parseFloat(formElement.dataset.korting || '0');
-        const btw = parseFloat(formElement.dataset.btw || '0');
-        const aantal = parseInt(aantalField.value, 10) || 0;
-
-        totaalField.value = formatEuro(berekenBestelproductTotaal(unitPrijs, aantal, korting, btw));
-    }
-
     function validateBestelproductForm(formElement) {
         const aantalField = formElement.querySelector('#aantal');
         const aantalValue = parseInt(normalizeValue(aantalField), 10);
@@ -179,16 +152,6 @@
 
         const bestelproductForm = document.getElementById('bestelproduct-edit-form');
         if (bestelproductForm) {
-            const aantalField = bestelproductForm.querySelector('#aantal');
-
-            updateBestelproductTotaal(bestelproductForm);
-
-            if (aantalField) {
-                aantalField.addEventListener('input', function () {
-                    updateBestelproductTotaal(bestelproductForm);
-                });
-            }
-
             bestelproductForm.addEventListener('submit', function (event) {
                 if (!validateBestelproductForm(bestelproductForm)) {
                     event.preventDefault();

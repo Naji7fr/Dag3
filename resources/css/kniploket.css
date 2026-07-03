@@ -240,6 +240,11 @@ body.menu-open {
     margin: 0 0 20px;
 }
 
+.page-title-sub {
+    color: #555;
+    font-weight: 600;
+}
+
 .alert {
     padding: 14px 18px;
     border-radius: 8px;

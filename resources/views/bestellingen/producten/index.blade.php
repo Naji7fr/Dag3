@@ -17,32 +17,9 @@
     <div class="alert alert-error">{{ $errorMessage }}</div>
 @endif
 
-<div class="card detail-card">
-    <div class="detail-row">
-        <div class="detail-label">Bestelnummer</div>
-        <div>{{ $bestelling['BestelNummer'] }}</div>
-    </div>
-    <div class="detail-row">
-        <div class="detail-label">Klant</div>
-        <div>{{ \App\Services\BestellingFormatter::formatKlantNaam($bestelling) }}</div>
-    </div>
-    <div class="detail-row">
-        <div class="detail-label">Datum</div>
-        <div>{{ \App\Services\BestellingFormatter::formatDatum($bestelling['Datum'] ?? '') }}</div>
-    </div>
-    <div class="detail-row">
-        <div class="detail-label">Tijd</div>
-        <div>{{ \App\Services\BestellingFormatter::formatTijd($bestelling['Tijd'] ?? '') }}</div>
-    </div>
-    <div class="detail-row">
-        <div class="detail-label">Status</div>
-        <div>{{ $bestelling['Bestelstatus'] }}</div>
-    </div>
-</div>
-
 <div class="card table-card">
     <div class="table-meta">
-        <span>Producten in bestelling - {{ count($productRegels) }} product(en)</span>
+        <span>Producten in bestelling {{ count($productRegels) }} product(en)</span>
     </div>
 
     <div class="table-responsive">

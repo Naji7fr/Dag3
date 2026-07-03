@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BestellingStatusFilterRequest;
 use App\Http\Requests\UpdateProductPerBestellingRequest;
 use App\Repositories\BestellingRepository;
-use App\Services\BestellingFormatter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
@@ -125,7 +124,6 @@ class BestellingController extends Controller
                 'activeNav' => 'bestellingen',
                 'bestelling' => $bestellingRecord,
                 'productRegel' => $productRegel,
-                'totaal' => BestellingFormatter::berekenTotaal($productRegel),
             ]);
         } catch (PDOException $exception) {
             Log::error('Databasefout bij bestelproduct wijzigen.', ['message' => $exception->getMessage()]);
