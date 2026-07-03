@@ -98,11 +98,12 @@ class MedewerkerRepository
         string $postcode,
         string $plaats,
         string $contactEmail,
-        string $mobiel
+        string $mobiel,
+        ?string $opmerking = null
     ): void {
         try {
             DB::statement(
-                'CALL sp_Medewerker_Update(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                'CALL sp_Medewerker_Update(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [
                     $medewerkerId,
                     $contactId,
@@ -118,6 +119,7 @@ class MedewerkerRepository
                     $plaats,
                     $contactEmail,
                     $mobiel,
+                    $opmerking,
                 ]
             );
         } catch (PDOException $exception) {

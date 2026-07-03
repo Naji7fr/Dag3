@@ -150,6 +150,17 @@
             </div>
         </div>
 
+        <div class="form-section" style="margin-top: 24px;">
+            <!-- Opmerking -->
+            <div class="form-group">
+                <label for="opmerking">Opmerking</label>
+                <input type="text" id="opmerking" name="opmerking"
+                       value="{{ old('opmerking', $medewerker['Opmerking']) }}"
+                       @class(['input-error' => $errors->has('opmerking')])>
+                @error('opmerking')<div class="field-error">{{ $message }}</div>@enderror
+            </div>
+        </div>
+
         <div class="form-footer">
             <span>Velden met een * zijn verplicht.</span>
             <div class="form-actions">

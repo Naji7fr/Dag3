@@ -71,6 +71,10 @@
         <div class="detail-label">Mobiel</div>
         <div>{{ $medewerker['Mobiel'] }}</div>
     </div>
+    <div class="detail-row">
+        <div class="detail-label">Opmerking</div>
+        <div>{{ $medewerker['Opmerking'] ?: '-' }}</div>
+    </div>
 
     <div class="detail-actions">
         <a class="btn btn-primary" href="{{ route('medewerkers.edit', $medewerker['Id']) }}">Wijzigen</a>

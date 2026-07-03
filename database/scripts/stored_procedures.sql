@@ -257,7 +257,8 @@ CREATE PROCEDURE sp_Medewerker_Update(
     IN p_Postcode VARCHAR(10),
     IN p_Plaats VARCHAR(100),
     IN p_ContactEmail VARCHAR(255),
-    IN p_Mobiel VARCHAR(20)
+    IN p_Mobiel VARCHAR(20),
+    IN p_Opmerking VARCHAR(255)
 )
 BEGIN
     /*
@@ -278,6 +279,7 @@ BEGIN
         Tussenvoegsel = p_Tussenvoegsel,
         Achternaam = p_Achternaam,
         Specialisatie = p_Specialisatie,
+        Opmerking = p_Opmerking,
         Geboortedatum = p_Geboortedatum,
         DatumGewijzigd = CURRENT_TIMESTAMP(6)
     WHERE Id = p_MedewerkerId;

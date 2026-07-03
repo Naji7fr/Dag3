@@ -41,6 +41,7 @@ class UpdateMedewerkerRequest extends FormRequest
             'plaats' => ['required', 'string', 'max:100'],
             'contact_email' => ['required', 'email', 'max:255'],
             'mobiel' => ['required', 'string', 'max:20'],
+            'opmerking' => ['nullable', 'string', 'max:255'],
         ];
     }
 

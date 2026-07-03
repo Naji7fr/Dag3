@@ -246,7 +246,8 @@ class MedewerkerController extends Controller
                 postcode: $validated['postcode'],
                 plaats: $validated['plaats'],
                 contactEmail: $validated['contact_email'],
-                mobiel: $validated['mobiel']
+                mobiel: $validated['mobiel'],
+                opmerking: $validated['opmerking'] ?? null
             );
 
             // Log succesvolle update
