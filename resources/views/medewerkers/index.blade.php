@@ -21,20 +21,22 @@
     <form method="get" action="{{ route('medewerkers.index') }}" id="specialisatie-filter-form" novalidate>
         <label for="specialisatie">Specialisatie</label>
         <div class="search-row">
-            <select
-                id="specialisatie"
-                name="specialisatie"
-                @class(['input-error' => $errors->has('specialisatie')])
-            >
-                <option value="">Alle specialisaties</option>
-                @foreach($specialisaties as $spec)
-                    <option value="{{ $spec['Specialisatie'] }}"
-                        @selected(old('specialisatie', $specialisatie ?? '') === $spec['Specialisatie'])
-                    >
-                        {{ $spec['Specialisatie'] }}
-                    </option>
-                @endforeach
-            </select>
+            <div class="custom-dropdown">
+                <select
+                    id="specialisatie"
+                    name="specialisatie"
+                    @class(['input-error' => $errors->has('specialisatie')])
+                >
+                    <option value="">Alle specialisaties</option>
+                    @foreach($specialisaties as $spec)
+                        <option value="{{ $spec['Specialisatie'] }}"
+                            @selected(old('specialisatie', $specialisatie ?? '') === $spec['Specialisatie'])
+                        >
+                            {{ $spec['Specialisatie'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary">Toon medewerkers</button>
             <a href="{{ route('medewerkers.index') }}" class="btn btn-secondary">Reset</a>
         </div>
