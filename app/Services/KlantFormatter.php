@@ -36,6 +36,25 @@ class KlantFormatter
     }
 
     /**
+     * Normaliseert een Nederlandse postcode (hoofdletters, zonder spaties).
+     */
+    public static function normalizePostcode(string $postcode): string
+    {
+        return strtoupper(str_replace(' ', '', trim($postcode)));
+    }
+
+    /**
+     * @param array<string, mixed> $klantRecord
+     */
+    public static function formatPostcodePlaats(array $klantRecord): string
+    {
+        $postcode = $klantRecord['Postcode'] ?? '';
+        $plaats = $klantRecord['Plaats'] ?? '';
+
+        return trim($postcode.' '.$plaats);
+    }
+
+    /**
      * @return array{voornaam: string, tussenvoegsel: string|null, achternaam: string}
      */
     public static function parseNaam(string $volledigeNaam): array
