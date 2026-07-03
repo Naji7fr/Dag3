@@ -13,16 +13,9 @@ Laravel webapplicatie voor User Story 01 (Klant Read) en User Story 02 (Klant Up
 
 ### 1. Database
 
-**Met testdata:**
 ```bash
 mysql -u root -p < database/scripts/create_kniploket_tiko.sql
 mysql -u root -p < database/scripts/stored_procedures.sql
-```
-
-**Lege database (geen klanten/producten):**
-```bash
-mysql -u root -p < database/scripts/create_kniploket_tiko_empty.sql
-mysql -u root -p < database/scripts/stored_procedures_empty.sql
 ```
 
 ### 2. Laravel
@@ -33,19 +26,13 @@ cp .env.example .env   # indien nodig
 php artisan key:generate
 ```
 
-Pas `.env` aan (lege database staat hier):
+Pas `.env` aan:
 
 ```env
-# DB_USE_EMPTY=false  →  kniploket_tiko         (met testdata)
-# DB_USE_EMPTY=true   →  kniploket_tiko_empty   (lege tabellen, geen klanten)
-DB_USE_EMPTY=false
 DB_DATABASE=kniploket_tiko
-DB_DATABASE_EMPTY=kniploket_tiko_empty
 DB_USERNAME=root
 DB_PASSWORD=
 ```
-
-Na wijziging van `DB_USE_EMPTY`: `php artisan config:clear`
 
 ### 3. Frontend assets
 
@@ -97,6 +84,20 @@ resources/views/
   klanten/index.blade.php, show.blade.php, edit.blade.php
 routes/web.php
 ```
+
+## Klant functionaliteit (User Story 01 & 02)
+
+### User Story 01 — Klant Read
+- Overzicht van alle klanten op `/klanten` (alleen eigenaar)
+- Postcode zoeken met server- en client-side validatie
+- Paginering (4 klanten per pagina)
+- Detailpagina per klant via stored procedure `sp_Klant_GetAll` / `sp_Klant_GetById`
+
+### User Story 02 — Klant Update
+- Wijzigformulier op `/klanten/{id}/wijzigen`
+- Validatie via `UpdateKlantRequest` (postcode, e-mail, mobiel)
+- Uniek contact-e-mailadres via `sp_Klant_IsContactEmailInUse`
+- Opslaan via `sp_Klant_Update` (Klant + Contact tabellen)
 
 ## Routes
 

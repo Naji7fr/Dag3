@@ -14,6 +14,17 @@ class KlantPostcodeSearchRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $postcode = $this->input('postcode');
+
+        if (is_string($postcode) && $postcode !== '') {
+            $this->merge([
+                'postcode' => strtoupper(str_replace(' ', '', trim($postcode))),
+            ]);
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -25,7 +36,9 @@ class KlantPostcodeSearchRequest extends FormRequest
                 'string',
                 'max:10',
                 function (string $attribute, mixed $value, \Closure $fail): void {
-                    if ($value !== null && $value !== '' && ! preg_match('/^[1-9][0-9]{3}\s?[A-Za-z]{2}$/', (string) $value)) {
+                    $pattern = config('kniploket.postcode_pattern');
+
+                    if ($value !== null && $value !== '' && ! preg_match($pattern, (string) $value)) {
                         $fail('Voer een geldige Nederlandse postcode in (bijv. 3512AB).');
                     }
                 },

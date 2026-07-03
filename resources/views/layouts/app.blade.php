@@ -27,7 +27,11 @@
 
             <nav class="main-nav" id="main-nav">
                 <a href="{{ route('home') }}" @class(['active' => ($activeNav ?? '') === 'home'])>Accounts</a>
-                <a href="#">Medewerkers</a>
+                @auth
+                    @if(auth()->user()->isEigenaar())
+                        <a href="{{ route('medewerkers.index') }}" @class(['active' => ($activeNav ?? '') === 'medewerkers'])>Medewerkers</a>
+                    @endif
+                @endauth
                 <a href="#">Beschikbaarheid</a>
                 @auth
                     @if(auth()->user()->isEigenaar())
@@ -65,12 +69,6 @@
     <div class="nav-overlay" id="nav-overlay" hidden></div>
 
     <main class="page-content">
-        @if(config('kniploket.use_empty_database'))
-            <div class="alert alert-info db-mode-banner">
-                Lege database actief: <strong>{{ config('kniploket.database_name') }}</strong>
-                (zet <code>DB_USE_EMPTY=false</code> in .env voor testdata)
-            </div>
-        @endif
         @yield('content')
     </main>
 
