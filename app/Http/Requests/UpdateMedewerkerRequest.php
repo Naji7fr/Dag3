@@ -40,7 +40,7 @@ class UpdateMedewerkerRequest extends FormRequest
             'postcode' => ['required', 'string', 'max:10'],
             'plaats' => ['required', 'string', 'max:100'],
             'contact_email' => ['required', 'email', 'max:255'],
-            'mobiel' => ['required', 'string', 'max:20'],
+            'mobiel' => ['required', 'string', 'max:20', 'regex:/^(\+31|0)6[\s\-]?\d{8}$/'],
             'opmerking' => ['nullable', 'string', 'max:255'],
         ];
     }
@@ -97,6 +97,7 @@ class UpdateMedewerkerRequest extends FormRequest
             'contact_email.required' => 'Contact e-mail is verplicht.',
             'contact_email.email' => 'Contact e-mail moet een geldig e-mailadres zijn.',
             'mobiel.required' => 'Mobiel is verplicht.',
+            'mobiel.regex' => 'Mobiel moet een geldig Nederlands mobiel nummer zijn (bijv. 06XXXXXXXX of +316XXXXXXXX).',
         ];
     }
 }
