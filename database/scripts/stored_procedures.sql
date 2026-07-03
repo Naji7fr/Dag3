@@ -453,4 +453,150 @@ BEGIN
     COMMIT;
 END$$
 
+-- ==========================================
+-- BEHANDELING STORED PROCEDURES
+-- ==========================================
+
+DROP PROCEDURE IF EXISTS sp_Behandeling_GetAll$$
+CREATE PROCEDURE sp_Behandeling_GetAll(IN p_BehandelingNaam VARCHAR(100))
+BEGIN
+    /*
+     * Haalt alle actieve behandelingen op met aantal gerelateerde producten.
+     * Optioneel gefilterd op behandeling naam.
+     * Relaties: Behandeling -> BehandelingPerVoorraad -> Voorraad -> Product
+     * 
+     * Retourneert: Id, Naam, Omschrijving, Duurminuten, Prijs, aantal_producten
+     * Sorteervolgorde: Vaste volgorde (Combi > Extensions > Kleuren > Knippen > Overige)
+     */
+    SELECT
+        b.Id,
+        b.Naam,
+        b.Omschrijving,
+        b.Duurminuten,
+        b.Prijs,
+        COUNT(DISTINCT p.Id) as aantal_producten
+    FROM Behandeling b
+    LEFT JOIN BehandelingPerVoorraad bpv ON b.Id = bpv.BehandelingId
+    LEFT JOIN Voorraad v ON bpv.VoorraadId = v.Id
+    LEFT JOIN Product p ON v.ProductId = p.Id
+    WHERE b.IsActief = 1
+      AND (
+          p_BehandelingNaam IS NULL
+          OR p_BehandelingNaam = ''
+          OR b.Naam = p_BehandelingNaam
+      )
+    GROUP BY b.Id, b.Naam, b.Omschrijving, b.Duurminuten, b.Prijs
+    ORDER BY CASE
+        WHEN b.Naam = 'Combi behandelingen' THEN 1
+        WHEN b.Naam = 'Extensions' THEN 2
+        WHEN b.Naam = 'Kleuren' THEN 3
+        WHEN b.Naam = 'Knippen' THEN 4
+        ELSE 5
+    END;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_Behandeling_GetById$$
+CREATE PROCEDURE sp_Behandeling_GetById(IN p_BehandelingId INT)
+BEGIN
+    /*
+     * Haalt één behandeling op met alle details.
+     * Retourneert null-resultaat als behandeling niet gevonden of niet actief.
+     */
+    SELECT
+        Id,
+        Naam,
+        Omschrijving,
+        Duurminuten,
+        Prijs,
+        IsActief,
+        DatumAangemaakt,
+        DatumGewijzigd,
+        Opmerking
+    FROM Behandeling
+    WHERE Id = p_BehandelingId
+      AND IsActief = 1;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_Behandeling_GetProducts$$
+CREATE PROCEDURE sp_Behandeling_GetProducts(IN p_BehandelingId INT)
+BEGIN
+    /*
+     * Haalt alle producten voor een behandeling op.
+     * Inclusief voorraadhoeveelheden.
+     * Relaties: BehandelingPerVoorraad (linking) -> Voorraad -> Product
+     */
+    SELECT
+        p.Id,
+        p.Naam,
+        p.Merk,
+        p.Omschrijving,
+        p.EANcode,
+        p.HoudbaarheidsNota,
+        p.InkoopPrijs,
+        p.VerkoopPrijs,
+        p.CategorieId,
+        v.AantalOpVoorraad
+    FROM BehandelingPerVoorraad bpv
+    INNER JOIN Voorraad v ON bpv.VoorraadId = v.Id
+    INNER JOIN Product p ON v.ProductId = p.Id
+    WHERE bpv.BehandelingId = p_BehandelingId
+      AND bpv.IsActief = 1
+      AND p.IsActief = 1
+    ORDER BY p.Naam;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_Product_GetById$$
+CREATE PROCEDURE sp_Product_GetById(IN p_ProductId INT)
+BEGIN
+    /*
+     * Haalt productdetails op met categorie informatie.
+     * Gebruikt LEFT JOIN omdat product optioneel een categorie kan hebben.
+     */
+    SELECT
+        p.Id,
+        p.Naam,
+        p.Merk,
+        p.Omschrijving,
+        p.EANcode,
+        p.HoudbaarheidsNota,
+        p.InkoopPrijs,
+        p.VerkoopPrijs,
+        p.CategorieId,
+        c.Naam as CategoriaNaam,
+        p.IsActief,
+        p.DatumAangemaakt,
+        p.DatumGewijzigd,
+        p.Opmerking
+    FROM Product p
+    LEFT JOIN Categorie c ON p.CategorieId = c.Id
+    WHERE p.Id = p_ProductId
+      AND p.IsActief = 1;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_Leverancier_GetByProductId$$
+CREATE PROCEDURE sp_Leverancier_GetByProductId(IN p_ProductId INT)
+BEGIN
+    /*
+     * Haalt leverancier informatie voor een product op.
+     * Via LeverancierOrder linking table.
+     * Retourneert eerste (meestal enige) leverancier of null-resultaat.
+     */
+    SELECT
+        l.Id,
+        l.Naam,
+        l.Postcode,
+        l.Plaats,
+        l.Email,
+        l.Mobiel,
+        l.IsActief,
+        l.DatumAangemaakt,
+        l.DatumGewijzigd,
+        l.Opmerking
+    FROM LeverancierOrder lo
+    INNER JOIN Leverancier l ON lo.LeverancierId = l.Id
+    WHERE lo.ProductId = p_ProductId
+      AND l.IsActief = 1
+    LIMIT 1;
+END$$
+
 DELIMITER ;
