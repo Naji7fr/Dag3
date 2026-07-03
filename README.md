@@ -85,6 +85,20 @@ resources/views/
 routes/web.php
 ```
 
+## Klant functionaliteit (User Story 01 & 02)
+
+### User Story 01 — Klant Read
+- Overzicht van alle klanten op `/klanten` (alleen eigenaar)
+- Postcode zoeken met server- en client-side validatie
+- Paginering (4 klanten per pagina)
+- Detailpagina per klant via stored procedure `sp_Klant_GetAll` / `sp_Klant_GetById`
+
+### User Story 02 — Klant Update
+- Wijzigformulier op `/klanten/{id}/wijzigen`
+- Validatie via `UpdateKlantRequest` (postcode, e-mail, mobiel)
+- Uniek contact-e-mailadres via `sp_Klant_IsContactEmailInUse`
+- Opslaan via `sp_Klant_Update` (Klant + Contact tabellen)
+
 ## Routes
 
 | URL | Route name | Actie |
