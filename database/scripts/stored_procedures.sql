@@ -150,4 +150,91 @@ BEGIN
     COMMIT;
 END$$
 
+-- ---------------------------------------------------------------------------
+-- Medewerker Stored Procedures
+-- ---------------------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS sp_Medewerker_GetAll$$
+CREATE PROCEDURE sp_Medewerker_GetAll(IN p_Specialisatie VARCHAR(100))
+BEGIN
+    /*
+     * Haalt alle actieve medewerkers op met contact- en accountgegevens.
+     * Gebruikt INNER JOIN tussen Medewerker, MedewerkerPerContact, Contact en users.
+     * Optionele filter op specialisatie.
+     */
+    SELECT
+        m.Id,
+        m.Voornaam,
+        m.Tussenvoegsel,
+        m.Achternaam,
+        m.Specialisatie,
+        m.Geboortedatum,
+        m.UserId,
+        c.Id AS ContactId,
+        c.Straatnaam,
+        c.Huisnummer,
+        c.Toevoeging,
+        c.Postcode,
+        c.Plaats,
+        c.Email AS ContactEmail,
+        c.Mobiel,
+        u.email AS AccountEmail,
+        u.name AS AccountName
+    FROM Medewerker m
+    INNER JOIN MedewerkerPerContact mpc ON mpc.MedewerkerId = m.Id
+    INNER JOIN Contact c ON c.Id = mpc.ContactId
+    INNER JOIN users u ON u.id = m.UserId
+    WHERE m.IsActief = 1
+      AND (
+          p_Specialisatie IS NULL
+          OR p_Specialisatie = ''
+          OR m.Specialisatie = p_Specialisatie
+      )
+    ORDER BY m.Voornaam ASC;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_Medewerker_GetById$$
+CREATE PROCEDURE sp_Medewerker_GetById(IN p_MedewerkerId INT)
+BEGIN
+    /*
+     * Haalt één medewerker op via INNER JOIN op gerelateerde tabellen.
+     */
+    SELECT
+        m.Id,
+        m.Voornaam,
+        m.Tussenvoegsel,
+        m.Achternaam,
+        m.Specialisatie,
+        m.Geboortedatum,
+        m.UserId,
+        c.Id AS ContactId,
+        c.Straatnaam,
+        c.Huisnummer,
+        c.Toevoeging,
+        c.Postcode,
+        c.Plaats,
+        c.Email AS ContactEmail,
+        c.Mobiel,
+        u.email AS AccountEmail
+    FROM Medewerker m
+    INNER JOIN MedewerkerPerContact mpc ON mpc.MedewerkerId = m.Id
+    INNER JOIN Contact c ON c.Id = mpc.ContactId
+    INNER JOIN users u ON u.id = m.UserId
+    WHERE m.Id = p_MedewerkerId
+      AND m.IsActief = 1
+    LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_Medewerker_GetSpecialisaties$$
+CREATE PROCEDURE sp_Medewerker_GetSpecialisaties()
+BEGIN
+    /*
+     * Haalt alle unieke specialisaties op van actieve medewerkers.
+     */
+    SELECT DISTINCT m.Specialisatie
+    FROM Medewerker m
+    WHERE m.IsActief = 1
+    ORDER BY m.Specialisatie ASC;
+END$$
+
 DELIMITER ;
