@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MedewerkerFilterRequest;
+use App\Http\Requests\UpdateMedewerkerRequest;
 use App\Repositories\MedewerkerRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -147,6 +148,132 @@ class MedewerkerController extends Controller
             ]);
 
             return redirect()->route('medewerkers.index')
+                ->with('error', 'Er is een onverwachte fout opgetreden.');
+        }
+    }
+
+    /**
+     * Toont edit-formulier voor een medewerker.
+     *
+     * @param int $id Medewerker ID
+     * @return View|RedirectResponse
+     */
+    public function edit(int $id): View|RedirectResponse
+    {
+        try {
+            $medewerker = $this->medewerkerRepository->getMedewerkerById($id);
+
+            if ($medewerker === null) {
+                Log::warning('Medewerker niet gevonden voor edit.', [
+                    'medewerkerId' => $id,
+                ]);
+
+                return redirect()->route('medewerkers.index')
+                    ->with('error', 'Medewerker niet gevonden.');
+            }
+
+            // Haal specialisaties op voor dropdown
+            $specialisaties = $this->medewerkerRepository->getSpecialisaties();
+
+            Log::info('Medewerker editpagina opgehaald.', [
+                'medewerkerId' => $id,
+            ]);
+
+            return view('medewerkers.edit', [
+                'pageTitle' => 'Medewerker wijzigen ' . $medewerker['Voornaam'] . ' ' . $medewerker['Achternaam'] . ' - Kniploket Tiko',
+                'activeNav' => 'medewerkers',
+                'medewerker' => $medewerker,
+                'specialisaties' => $specialisaties,
+            ]);
+        } catch (PDOException $exception) {
+            Log::error('Databasefout bij ophalen medewerker voor edit.', [
+                'medewerkerId' => $id,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()->route('medewerkers.index')
+                ->with('error', 'Er is een fout opgetreden bij het ophalen van medewerkergegevens.');
+        } catch (Throwable $exception) {
+            Log::error('Onverwachte fout in MedewerkerController::edit', [
+                'medewerkerId' => $id,
+                'message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
+
+            return redirect()->route('medewerkers.index')
+                ->with('error', 'Er is een onverwachte fout opgetreden.');
+        }
+    }
+
+    /**
+     * Werkt medewerker-gegevens bij.
+     * Implementeert error handling en logging.
+     *
+     * @param UpdateMedewerkerRequest $request Gevalideerde update data
+     * @param int $id Medewerker ID
+     * @return RedirectResponse
+     */
+    public function update(UpdateMedewerkerRequest $request, int $id): RedirectResponse
+    {
+        try {
+            // Haal medewerker op voor validatie
+            $medewerker = $this->medewerkerRepository->getMedewerkerById($id);
+
+            if ($medewerker === null) {
+                Log::warning('Medewerker niet gevonden voor update.', [
+                    'medewerkerId' => $id,
+                ]);
+
+                return redirect()->route('medewerkers.index')
+                    ->with('error', 'Medewerker niet gevonden.');
+            }
+
+            // Haal gevalideerde data op
+            $validated = $request->validated();
+
+            // Werk medewerker bij via repository
+            $this->medewerkerRepository->updateMedewerker(
+                medewerkerId: $id,
+                contactId: $medewerker['ContactId'],
+                voornaam: $validated['voornaam'],
+                tussenvoegsel: $validated['tussenvoegsel'] ?? null,
+                achternaam: $validated['achternaam'],
+                specialisatie: $validated['specialisatie'],
+                geboortedatum: $validated['geboortedatum'],
+                straatnaam: $validated['straatnaam'],
+                huisnummer: $validated['huisnummer'],
+                toevoeging: $validated['toevoeging'] ?? null,
+                postcode: $validated['postcode'],
+                plaats: $validated['plaats'],
+                contactEmail: $validated['contact_email'],
+                mobiel: $validated['mobiel']
+            );
+
+            // Log succesvolle update
+            Log::info('Medewerker bijgewerkt.', [
+                'medewerkerId' => $id,
+            ]);
+
+            return redirect()->route('medewerkers.show', $id)
+                ->with('success', 'Medewerkergegevens bijgewerkt.');
+        } catch (PDOException $exception) {
+            Log::error('Databasefout bij bijwerken medewerker.', [
+                'medewerkerId' => $id,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()->route('medewerkers.edit', $id)
+                ->withInput()
+                ->with('error', 'Er is een fout opgetreden bij het bijwerken van medewerkergegevens.');
+        } catch (Throwable $exception) {
+            Log::error('Onverwachte fout in MedewerkerController::update', [
+                'medewerkerId' => $id,
+                'message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
+
+            return redirect()->route('medewerkers.edit', $id)
+                ->withInput()
                 ->with('error', 'Er is een onverwachte fout opgetreden.');
         }
     }
