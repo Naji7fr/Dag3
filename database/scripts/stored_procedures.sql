@@ -1,4 +1,4 @@
--- Stored Procedures voor Kniploket Tiko (Klant- en Bestelling module)
+-- Stored Procedures voor Kniploket Tiko (Klant-, Bestelling- en Medewerker module)
 -- Voer uit na create_kniploket_tiko.sql
 --
 -- Gebruik:
@@ -9,6 +9,9 @@ CREATE DATABASE IF NOT EXISTS kniploket_tiko
     COLLATE utf8mb4_unicode_ci;
 
 USE kniploket_tiko;
+
+-- Update: Rename 'Combi behandelingen' (ID 2) to 'Stylen'
+UPDATE Behandeling SET Naam = 'Stylen' WHERE Id = 2;
 
 DELIMITER $$
 
@@ -149,6 +152,10 @@ BEGIN
 
     COMMIT;
 END$$
+
+-- ---------------------------------------------------------------------------
+-- Bestelling Stored Procedures
+-- ---------------------------------------------------------------------------
 
 DROP PROCEDURE IF EXISTS sp_Bestelling_GetAll$$
 CREATE PROCEDURE sp_Bestelling_GetAll(IN p_Status VARCHAR(50))
@@ -296,6 +303,154 @@ BEGIN
         DatumGewijzigd = CURRENT_TIMESTAMP(6)
     WHERE Id = p_ProductPerBestellingId
       AND IsActief = 1;
+END$$
+
+-- ---------------------------------------------------------------------------
+-- Medewerker Stored Procedures
+-- ---------------------------------------------------------------------------
+
+DROP PROCEDURE IF EXISTS sp_Medewerker_GetAll$$
+CREATE PROCEDURE sp_Medewerker_GetAll(IN p_Specialisatie VARCHAR(100))
+BEGIN
+    /*
+     * Haalt alle actieve medewerkers op met contact- en accountgegevens.
+     * Gebruikt INNER JOIN tussen Medewerker, MedewerkerPerContact, Contact en users.
+     * Optionele filter op specialisatie.
+     */
+    SELECT
+        m.Id,
+        m.Voornaam,
+        m.Tussenvoegsel,
+        m.Achternaam,
+        m.Specialisatie,
+        m.Geboortedatum,
+        m.Opmerking,
+        m.UserId,
+        c.Id AS ContactId,
+        c.Straatnaam,
+        c.Huisnummer,
+        c.Toevoeging,
+        c.Postcode,
+        c.Plaats,
+        c.Email AS ContactEmail,
+        c.Mobiel,
+        u.email AS AccountEmail,
+        u.name AS AccountName
+    FROM Medewerker m
+    INNER JOIN MedewerkerPerContact mpc ON mpc.MedewerkerId = m.Id
+    INNER JOIN Contact c ON c.Id = mpc.ContactId
+    INNER JOIN users u ON u.id = m.UserId
+    WHERE m.IsActief = 1
+      AND (
+          p_Specialisatie IS NULL
+          OR p_Specialisatie = ''
+          OR m.Specialisatie = p_Specialisatie
+      )
+    ORDER BY m.Voornaam ASC;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_Medewerker_GetById$$
+CREATE PROCEDURE sp_Medewerker_GetById(IN p_MedewerkerId INT)
+BEGIN
+    /*
+     * Haalt één medewerker op via INNER JOIN op gerelateerde tabellen.
+     */
+    SELECT
+        m.Id,
+        m.Voornaam,
+        m.Tussenvoegsel,
+        m.Achternaam,
+        m.Specialisatie,
+        m.Geboortedatum,
+        m.Opmerking,
+        m.UserId,
+        c.Id AS ContactId,
+        c.Straatnaam,
+        c.Huisnummer,
+        c.Toevoeging,
+        c.Postcode,
+        c.Plaats,
+        c.Email AS ContactEmail,
+        c.Mobiel,
+        u.email AS AccountEmail
+    FROM Medewerker m
+    INNER JOIN MedewerkerPerContact mpc ON mpc.MedewerkerId = m.Id
+    INNER JOIN Contact c ON c.Id = mpc.ContactId
+    INNER JOIN users u ON u.id = m.UserId
+    WHERE m.Id = p_MedewerkerId
+      AND m.IsActief = 1
+    LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_Medewerker_GetSpecialisaties$$
+CREATE PROCEDURE sp_Medewerker_GetSpecialisaties()
+BEGIN
+    /*
+     * Haalt alle unieke behandelingnamen op (specialisaties) uit de Behandeling tabel.
+     * Dit zorgt ervoor dat alle behandelingstypen in de dropdown verschijnen,
+     * ook als er geen medewerker aan toegewezen is.
+     */
+    SELECT DISTINCT b.Naam AS Specialisatie
+    FROM Behandeling b
+    WHERE b.IsActief = 1
+    ORDER BY b.Naam ASC;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_Medewerker_Update$$
+CREATE PROCEDURE sp_Medewerker_Update(
+    IN p_MedewerkerId INT,
+    IN p_ContactId INT,
+    IN p_Voornaam VARCHAR(100),
+    IN p_Tussenvoegsel VARCHAR(50),
+    IN p_Achternaam VARCHAR(100),
+    IN p_Specialisatie VARCHAR(100),
+    IN p_Geboortedatum DATE,
+    IN p_Straatnaam VARCHAR(150),
+    IN p_Huisnummer VARCHAR(10),
+    IN p_Toevoeging VARCHAR(10),
+    IN p_Postcode VARCHAR(10),
+    IN p_Plaats VARCHAR(100),
+    IN p_ContactEmail VARCHAR(255),
+    IN p_Mobiel VARCHAR(20),
+    IN p_Opmerking VARCHAR(255)
+)
+BEGIN
+    /*
+     * Werkt medewerker- en contactgegevens atomisch bij binnen een transactie.
+     * Gebruikt INNER JOINs voor validatie en update.
+     */
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE Medewerker
+    SET
+        Voornaam = p_Voornaam,
+        Tussenvoegsel = p_Tussenvoegsel,
+        Achternaam = p_Achternaam,
+        Specialisatie = p_Specialisatie,
+        Opmerking = p_Opmerking,
+        Geboortedatum = p_Geboortedatum,
+        DatumGewijzigd = CURRENT_TIMESTAMP(6)
+    WHERE Id = p_MedewerkerId;
+
+    UPDATE Contact
+    SET
+        Straatnaam = p_Straatnaam,
+        Huisnummer = p_Huisnummer,
+        Toevoeging = p_Toevoeging,
+        Postcode = UPPER(REPLACE(p_Postcode, ' ', '')),
+        Plaats = p_Plaats,
+        Email = p_ContactEmail,
+        Mobiel = p_Mobiel,
+        DatumGewijzigd = CURRENT_TIMESTAMP(6)
+    WHERE Id = p_ContactId;
+
+    COMMIT;
 END$$
 
 DELIMITER ;

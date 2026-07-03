@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BestellingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KlantController;
+use App\Http\Controllers\MedewerkerController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function (): void {
@@ -26,5 +27,10 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/bestellingen/{bestelling}/producten', [BestellingController::class, 'producten'])->name('bestellingen.producten');
         Route::get('/bestellingen/{bestelling}/producten/{productPerBestelling}/wijzigen', [BestellingController::class, 'editProduct'])->name('bestellingen.producten.edit');
         Route::put('/bestellingen/{bestelling}/producten/{productPerBestelling}', [BestellingController::class, 'updateProduct'])->name('bestellingen.producten.update');
+
+        Route::get('/medewerkers', [MedewerkerController::class, 'index'])->name('medewerkers.index');
+        Route::get('/medewerkers/{medewerker}', [MedewerkerController::class, 'show'])->name('medewerkers.show');
+        Route::get('/medewerkers/{medewerker}/wijzigen', [MedewerkerController::class, 'edit'])->name('medewerkers.edit');
+        Route::put('/medewerkers/{medewerker}', [MedewerkerController::class, 'update'])->name('medewerkers.update');
     });
 });

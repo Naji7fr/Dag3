@@ -39,12 +39,8 @@
         <div>{{ $klant['Toevoeging'] ?: '-' }}</div>
     </div>
     <div class="detail-row">
-        <div class="detail-label">Postcode</div>
-        <div>{{ $klant['Postcode'] }}</div>
-    </div>
-    <div class="detail-row">
-        <div class="detail-label">Plaats</div>
-        <div>{{ $klant['Plaats'] }}</div>
+        <div class="detail-label">Postcode / Plaats</div>
+        <div>{{ \App\Services\KlantFormatter::formatPostcodePlaats($klant) }}</div>
     </div>
     <div class="detail-row">
         <div class="detail-label">Mobiel</div>
