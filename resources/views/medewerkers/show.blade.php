@@ -15,6 +15,14 @@
     @endif
 </h1>
 
+@if(session('success'))
+    <div id="flash-alert" class="alert alert-success">{{ session('success') }}</div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-error">{{ session('error') }}</div>
+@endif
+
 <div class="card detail-card">
     <div class="detail-row">
         <div class="detail-label">Naam</div>
