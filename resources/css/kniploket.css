@@ -217,6 +217,14 @@ body.menu-open {
     cursor: pointer;
 }
 
+.checkbox-label input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #b91c3c;
+}
+
 .table-responsive {
     width: 100%;
     overflow-x: auto;
