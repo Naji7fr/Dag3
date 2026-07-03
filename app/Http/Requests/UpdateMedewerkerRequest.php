@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 /**
  * Validatie voor het updaten van medewerker gegevens.
@@ -44,25 +45,29 @@ class UpdateMedewerkerRequest extends FormRequest
     }
 
     /**
-     * Custom validatie regels na standaardvalidatie.
+     * Hook na standaardvalidatie voor custom regels.
+     * Controleer of minderjarige medewerker "Permanent" krijgt toegewezen.
      *
+     * @param Validator $validator
      * @return void
      */
-    public function after(): void
+    public function withValidator(Validator $validator): void
     {
-        $specialisatie = $this->input('specialisatie');
-        $geboortedatum = $this->input('geboortedatum');
+        $validator->after(function (Validator $validator) {
+            $specialisatie = $this->input('specialisatie');
+            $geboortedatum = $this->input('geboortedatum');
 
-        // Controleer of minderjarige medewerker "Permanent" krijgt toegewezen
-        if ($specialisatie === 'Permanent' && $geboortedatum) {
-            $leeftijd = Carbon::createFromFormat('Y-m-d', $geboortedatum)->age;
-            if ($leeftijd < 18) {
-                $this->validator->errors()->add(
-                    'specialisatie',
-                    'Minderjarige medewerkers mogen geen specialisatie Permanent toegewezen krijgen vanwege het werken met gevaarlijke stoffen en chemicaliën.'
-                );
+            // Controleer of minderjarige medewerker "Permanent" krijgt toegewezen
+            if ($specialisatie === 'Permanent' && $geboortedatum) {
+                $leeftijd = Carbon::createFromFormat('Y-m-d', $geboortedatum)->age;
+                if ($leeftijd < 18) {
+                    $validator->errors()->add(
+                        'specialisatie',
+                        'Minderjarige medewerkers mogen geen specialisatie Permanent toegewezen krijgen vanwege het werken met gevaarlijke stoffen en chemicaliën.'
+                    );
+                }
             }
-        }
+        });
     }
 
     /**
