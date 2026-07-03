@@ -74,14 +74,13 @@
                     <td>{{ $klantRecord['ContactEmail'] }}</td>
                     <td>
                         <a class="btn btn-outline" href="{{ route('klanten.show', $klantRecord['Id']) }}">Details</a>
-                        <a class="btn btn-outline" href="{{ route('klanten.edit', $klantRecord['Id']) }}">Wijzigen</a>
                     </td>
                 </tr>
             @empty
                 <tr>
                     <td colspan="8" class="empty-message">
                         @if(!empty($postcode))
-                            Er zijn geen klanten bekend die de geselecteerde postcode hebben
+                            Er zijn geen klanten bekent die de geselecteerde postcode hebben
                         @else
                             Er zijn geen klanten gevonden
                         @endif

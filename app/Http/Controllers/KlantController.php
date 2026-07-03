@@ -163,7 +163,7 @@ class KlantController extends Controller
             );
 
             return redirect()
-                ->route('klanten.index')
+                ->route('klanten.index', ['postcode' => $gevalideerdeData['postcode']])
                 ->with('success', 'Klantgegevens bijgewerkt.');
         } catch (PDOException|Throwable $exception) {
             Log::error('Databasefout bij opslaan klant.', ['message' => $exception->getMessage()]);
