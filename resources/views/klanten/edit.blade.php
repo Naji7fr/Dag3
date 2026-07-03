@@ -95,8 +95,10 @@
             </div>
             <div class="form-group full-width">
                 <label for="bijzonderheden">Bijzonderheden</label>
-                <input type="text" id="bijzonderheden" name="bijzonderheden"
-                       value="{{ old('bijzonderheden', $formData['bijzonderheden']) }}">
+                <input type="text" id="bijzonderheden" name="bijzonderheden" maxlength="500"
+                       value="{{ old('bijzonderheden', $formData['bijzonderheden']) }}"
+                       @class(['input-error' => $errors->has('bijzonderheden')])>
+                @error('bijzonderheden')<div class="field-error">{{ $message }}</div>@enderror
             </div>
         </div>
 

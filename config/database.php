@@ -49,10 +49,7 @@ return [
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
-            // Lege database: zet DB_USE_EMPTY=true in .env → kniploket_tiko_empty
-            'database' => filter_var(env('DB_USE_EMPTY', false), FILTER_VALIDATE_BOOLEAN)
-                ? env('DB_DATABASE_EMPTY', 'kniploket_tiko_empty')
-                : env('DB_DATABASE', 'kniploket_tiko'),
+            'database' => env('DB_DATABASE', 'kniploket_tiko'),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),

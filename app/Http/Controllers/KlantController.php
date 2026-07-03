@@ -33,7 +33,7 @@ class KlantController extends Controller
             $itemsPerPagina = (int) config('kniploket.per_page', 4);
 
             $genormaliseerdePostcode = $postcodeZoekterm !== ''
-                ? strtoupper(str_replace(' ', '', $postcodeZoekterm))
+                ? KlantFormatter::normalizePostcode($postcodeZoekterm)
                 : null;
 
             $alleKlanten = $this->klantRepository->getAllKlanten($genormaliseerdePostcode);
@@ -155,7 +155,7 @@ class KlantController extends Controller
                     'straatnaam' => $gevalideerdeData['straatnaam'],
                     'huisnummer' => $gevalideerdeData['huisnummer'],
                     'toevoeging' => $gevalideerdeData['toevoeging'] ?? '',
-                    'postcode' => $gevalideerdeData['postcode'],
+                    'postcode' => KlantFormatter::normalizePostcode($gevalideerdeData['postcode']),
                     'plaats' => $gevalideerdeData['plaats'],
                     'contact_email' => $gevalideerdeData['contact_email'],
                     'mobiel' => $gevalideerdeData['mobiel'],
@@ -163,7 +163,7 @@ class KlantController extends Controller
             );
 
             return redirect()
-                ->route('klanten.index')
+                ->route('klanten.index', ['postcode' => $gevalideerdeData['postcode']])
                 ->with('success', 'Klantgegevens bijgewerkt.');
         } catch (PDOException|Throwable $exception) {
             Log::error('Databasefout bij opslaan klant.', ['message' => $exception->getMessage()]);
