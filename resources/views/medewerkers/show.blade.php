@@ -73,6 +73,7 @@
     </div>
 
     <div class="detail-actions">
+        <a class="btn btn-primary" href="{{ route('medewerkers.edit', $medewerker['Id']) }}">Wijzigen</a>
         <a class="btn btn-outline" href="{{ route('medewerkers.index') }}">Terug</a>
     </div>
 </div>
