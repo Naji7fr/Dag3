@@ -200,5 +200,103 @@ BEGIN
     ORDER BY b.Datum DESC, b.Tijd DESC, b.BestelNummer DESC;
 END$$
 
+DROP PROCEDURE IF EXISTS sp_Bestelling_GetById$$
+CREATE PROCEDURE sp_Bestelling_GetById(IN p_BestellingId INT)
+BEGIN
+    /*
+     * Haalt één bestelling op met klantgegevens via INNER JOIN.
+     */
+    SELECT
+        b.Id,
+        b.KlantId,
+        b.BestelNummer,
+        b.Omschrijving,
+        b.Datum,
+        b.Tijd,
+        b.Bestelstatus,
+        k.Voornaam,
+        k.Tussenvoegsel,
+        k.Achternaam,
+        k.Relatienummer
+    FROM Bestelling b
+    INNER JOIN Klant k ON k.Id = b.KlantId AND k.IsActief = 1
+    WHERE b.Id = p_BestellingId
+      AND b.IsActief = 1
+    LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_ProductPerBestelling_GetByBestellingId$$
+CREATE PROCEDURE sp_ProductPerBestelling_GetByBestellingId(IN p_BestellingId INT)
+BEGIN
+    /*
+     * Haalt productregels per bestelling op via INNER JOIN op Product, Categorie en Bestelling.
+     */
+    SELECT
+        ppb.Id,
+        ppb.ProductId,
+        ppb.BestellingId,
+        ppb.Aantal,
+        ppb.UnitPrijs,
+        ppb.BTWPercentage,
+        ppb.Korting,
+        p.Naam AS ProductNaam,
+        p.Merk,
+        c.Naam AS CategorieNaam,
+        b.BestelNummer,
+        b.Bestelstatus
+    FROM ProductPerBestelling ppb
+    INNER JOIN Product p ON p.Id = ppb.ProductId AND p.IsActief = 1
+    INNER JOIN Categorie c ON c.Id = p.CategorieId AND c.IsActief = 1
+    INNER JOIN Bestelling b ON b.Id = ppb.BestellingId AND b.IsActief = 1
+    WHERE ppb.BestellingId = p_BestellingId
+      AND ppb.IsActief = 1
+    ORDER BY p.Naam ASC;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_ProductPerBestelling_GetById$$
+CREATE PROCEDURE sp_ProductPerBestelling_GetById(IN p_ProductPerBestellingId INT)
+BEGIN
+    /*
+     * Haalt één productregel op voor het wijzigformulier.
+     */
+    SELECT
+        ppb.Id,
+        ppb.ProductId,
+        ppb.BestellingId,
+        ppb.Aantal,
+        ppb.UnitPrijs,
+        ppb.BTWPercentage,
+        ppb.Korting,
+        p.Naam AS ProductNaam,
+        p.Merk,
+        c.Naam AS CategorieNaam,
+        b.BestelNummer,
+        b.Bestelstatus
+    FROM ProductPerBestelling ppb
+    INNER JOIN Product p ON p.Id = ppb.ProductId AND p.IsActief = 1
+    INNER JOIN Categorie c ON c.Id = p.CategorieId AND c.IsActief = 1
+    INNER JOIN Bestelling b ON b.Id = ppb.BestellingId AND b.IsActief = 1
+    WHERE ppb.Id = p_ProductPerBestellingId
+      AND ppb.IsActief = 1
+    LIMIT 1;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_ProductPerBestelling_UpdateAantal$$
+CREATE PROCEDURE sp_ProductPerBestelling_UpdateAantal(
+    IN p_ProductPerBestellingId INT,
+    IN p_Aantal INT
+)
+BEGIN
+    /*
+     * Werkt het aantal van een productregel bij.
+     */
+    UPDATE ProductPerBestelling
+    SET
+        Aantal = p_Aantal,
+        DatumGewijzigd = CURRENT_TIMESTAMP(6)
+    WHERE Id = p_ProductPerBestellingId
+      AND IsActief = 1;
+END$$
+
 DELIMITER ;
 
