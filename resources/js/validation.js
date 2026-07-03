@@ -118,6 +118,13 @@
     document.addEventListener('DOMContentLoaded', function () {
         const klantForm = document.getElementById('klant-edit-form');
         if (klantForm) {
+            const editPostcodeField = klantForm.querySelector('#postcode');
+            if (editPostcodeField) {
+                editPostcodeField.addEventListener('blur', function () {
+                    editPostcodeField.value = editPostcodeField.value.trim().toUpperCase().replace(/\s+/g, '');
+                });
+            }
+
             klantForm.addEventListener('submit', function (event) {
                 if (!validateKlantForm(klantForm)) {
                     event.preventDefault();
@@ -127,6 +134,13 @@
 
         const searchForm = document.getElementById('postcode-search-form');
         if (searchForm) {
+            const searchPostcodeField = searchForm.querySelector('#postcode');
+            if (searchPostcodeField) {
+                searchPostcodeField.addEventListener('blur', function () {
+                    searchPostcodeField.value = searchPostcodeField.value.trim().toUpperCase().replace(/\s+/g, '');
+                });
+            }
+
             searchForm.addEventListener('submit', function (event) {
                 if (!validatePostcodeSearchForm(searchForm)) {
                     event.preventDefault();
