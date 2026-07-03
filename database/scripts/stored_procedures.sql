@@ -10,6 +10,9 @@ CREATE DATABASE IF NOT EXISTS kniploket_tiko
 
 USE kniploket_tiko;
 
+-- Update: Rename 'Combi behandelingen' (ID 2) to 'Stylen'
+UPDATE Behandeling SET Naam = 'Stylen' WHERE Id = 2;
+
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_Klant_GetAll$$
