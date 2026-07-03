@@ -414,8 +414,10 @@ body.menu-open {
 
 .empty-message {
     padding: 28px 20px;
-    text-align: center;
+    text-align: center !important;
     color: #555;
+    display: table-cell;
+    vertical-align: middle;
 }
 
 .site-footer {
