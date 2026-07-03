@@ -28,9 +28,19 @@ class UpdateKlantRequest extends FormRequest
             'straatnaam' => ['required', 'string', 'max:150'],
             'huisnummer' => ['required', 'string', 'max:10'],
             'toevoeging' => ['nullable', 'string', 'max:10'],
-            'postcode' => ['required', 'string', 'max:10', 'regex:/^[1-9][0-9]{3}\s?[A-Za-z]{2}$/'],
+            'postcode' => [
+                'required',
+                'string',
+                'max:10',
+                'regex:'.config('kniploket.postcode_pattern'),
+            ],
             'plaats' => ['required', 'string', 'max:100'],
-            'mobiel' => ['required', 'string', 'max:20', 'regex:/^\+?[0-9\s\-()]{10,}$/'],
+            'mobiel' => [
+                'required',
+                'string',
+                'max:20',
+                'regex:'.config('kniploket.mobiel_pattern'),
+            ],
             'bijzonderheden' => ['nullable', 'string', 'max:500'],
         ];
     }
