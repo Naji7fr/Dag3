@@ -25,7 +25,11 @@
             <div class="module-card">
                 <h3>Medewerkers</h3>
                 <p>Overzicht van medewerkers en hun basisgegevens.</p>
-                <a class="btn btn-outline" href="#">Openen</a>
+                @if(auth()->user()->isEigenaar())
+                    <a class="btn btn-outline" href="{{ route('medewerkers.index') }}">Openen</a>
+                @else
+                    <span class="module-disabled">Alleen voor eigenaar</span>
+                @endif
             </div>
             <div class="module-card">
                 <h3>Beschikbaarheid</h3>
