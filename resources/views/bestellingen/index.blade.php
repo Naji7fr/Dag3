@@ -65,7 +65,7 @@
                     <td>{{ $bestelling['Bestelstatus'] }}</td>
                     <td>{{ $bestelling['Producten'] ?? '' }}</td>
                     <td>
-                        <span class="btn btn-outline btn-disabled">Producten</span>
+                        <a class="btn btn-outline" href="{{ route('bestellingen.producten', $bestelling['Id']) }}">Producten</a>
                     </td>
                 </tr>
             @empty
