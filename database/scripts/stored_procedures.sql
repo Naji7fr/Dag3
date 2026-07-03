@@ -242,4 +242,59 @@ BEGIN
     ORDER BY b.Naam ASC;
 END$$
 
+DROP PROCEDURE IF EXISTS sp_Medewerker_Update$$
+CREATE PROCEDURE sp_Medewerker_Update(
+    IN p_MedewerkerId INT,
+    IN p_ContactId INT,
+    IN p_Voornaam VARCHAR(100),
+    IN p_Tussenvoegsel VARCHAR(50),
+    IN p_Achternaam VARCHAR(100),
+    IN p_Specialisatie VARCHAR(100),
+    IN p_Geboortedatum DATE,
+    IN p_Straatnaam VARCHAR(150),
+    IN p_Huisnummer VARCHAR(10),
+    IN p_Toevoeging VARCHAR(10),
+    IN p_Postcode VARCHAR(10),
+    IN p_Plaats VARCHAR(100),
+    IN p_ContactEmail VARCHAR(255),
+    IN p_Mobiel VARCHAR(20)
+)
+BEGIN
+    /*
+     * Werkt medewerker- en contactgegevens atomisch bij binnen een transactie.
+     * Gebruikt INNER JOINs voor validatie en update.
+     */
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE Medewerker
+    SET
+        Voornaam = p_Voornaam,
+        Tussenvoegsel = p_Tussenvoegsel,
+        Achternaam = p_Achternaam,
+        Specialisatie = p_Specialisatie,
+        Geboortedatum = p_Geboortedatum,
+        DatumGewijzigd = CURRENT_TIMESTAMP(6)
+    WHERE Id = p_MedewerkerId;
+
+    UPDATE Contact
+    SET
+        Straatnaam = p_Straatnaam,
+        Huisnummer = p_Huisnummer,
+        Toevoeging = p_Toevoeging,
+        Postcode = UPPER(REPLACE(p_Postcode, ' ', '')),
+        Plaats = p_Plaats,
+        Email = p_ContactEmail,
+        Mobiel = p_Mobiel,
+        DatumGewijzigd = CURRENT_TIMESTAMP(6)
+    WHERE Id = p_ContactId;
+
+    COMMIT;
+END$$
+
 DELIMITER ;
