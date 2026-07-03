@@ -24,5 +24,7 @@ Route::middleware('auth')->group(function (): void {
 
         Route::get('/medewerkers', [MedewerkerController::class, 'index'])->name('medewerkers.index');
         Route::get('/medewerkers/{medewerker}', [MedewerkerController::class, 'show'])->name('medewerkers.show');
+        Route::get('/medewerkers/{medewerker}/wijzigen', [MedewerkerController::class, 'edit'])->name('medewerkers.edit');
+        Route::put('/medewerkers/{medewerker}', [MedewerkerController::class, 'update'])->name('medewerkers.update');
     });
 });
