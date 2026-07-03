@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BestellingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KlantController;
 use Illuminate\Support\Facades\Route;
@@ -20,5 +21,7 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/klanten/{klant}', [KlantController::class, 'show'])->name('klanten.show');
         Route::get('/klanten/{klant}/wijzigen', [KlantController::class, 'edit'])->name('klanten.edit');
         Route::put('/klanten/{klant}', [KlantController::class, 'update'])->name('klanten.update');
+
+        Route::get('/bestellingen', [BestellingController::class, 'index'])->name('bestellingen.index');
     });
 });

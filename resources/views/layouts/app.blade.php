@@ -37,7 +37,7 @@
                 <a href="#">Afspraken</a>
                 <a href="#">Behandelingen</a>
                 <a href="#">Producten</a>
-                <a href="#">Bestellingen</a>
+                <a href="{{ route('bestellingen.index') }}" @class(['active' => ($activeNav ?? '') === 'bestellingen'])>Bestellingen</a>
 
                 <div class="mobile-user-panel">
                     @auth

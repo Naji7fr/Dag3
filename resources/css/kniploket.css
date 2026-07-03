@@ -292,7 +292,8 @@ body.menu-open {
     flex-wrap: wrap;
 }
 
-.search-row input[type="text"] {
+.search-row input[type="text"],
+.search-row select {
     flex: 1;
     min-width: 220px;
     max-width: 420px;
@@ -300,6 +301,16 @@ body.menu-open {
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 1rem;
+}
+
+.search-row select.input-error {
+    border-color: #b91c3c;
+}
+
+.btn-disabled {
+    opacity: 0.65;
+    cursor: default;
+    pointer-events: none;
 }
 
 .btn {
@@ -673,7 +684,8 @@ body.menu-open {
         align-items: stretch;
     }
 
-    .search-row input[type="text"] {
+    .search-row input[type="text"],
+    .search-row select {
         max-width: none;
         width: 100%;
     }

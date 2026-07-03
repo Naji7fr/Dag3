@@ -1,4 +1,4 @@
-﻿-- Stored Procedures voor Kniploket Tiko (Klant module)
+﻿-- Stored Procedures voor Kniploket Tiko (Klant- en Bestelling module)
 -- Voer uit na create_kniploket_tiko_empty.sql
 --
 -- Gebruik:
@@ -148,6 +148,56 @@ BEGIN
     WHERE Id = p_ContactId;
 
     COMMIT;
+END$$
+
+DROP PROCEDURE IF EXISTS sp_Bestelling_GetAll$$
+CREATE PROCEDURE sp_Bestelling_GetAll(IN p_Status VARCHAR(50))
+BEGIN
+    /*
+     * Haalt alle actieve bestellingen op met klant- en productgegevens.
+     * Gebruikt INNER JOIN tussen Bestelling, Klant, ProductPerBestelling en Product.
+     * Optionele filter op bestelstatus.
+     */
+    SELECT
+        b.Id,
+        b.BestelNummer,
+        b.Omschrijving,
+        b.Datum,
+        b.Tijd,
+        b.Bestelstatus,
+        k.Id AS KlantId,
+        k.Voornaam,
+        k.Tussenvoegsel,
+        k.Achternaam,
+        k.Relatienummer,
+        GROUP_CONCAT(
+            CONCAT(p.Naam, ' (', ppb.Aantal, 'x)')
+            ORDER BY p.Naam
+            SEPARATOR ', '
+        ) AS Producten
+    FROM Bestelling b
+    INNER JOIN Klant k ON k.Id = b.KlantId AND k.IsActief = 1
+    INNER JOIN ProductPerBestelling ppb ON ppb.BestellingId = b.Id AND ppb.IsActief = 1
+    INNER JOIN Product p ON p.Id = ppb.ProductId AND p.IsActief = 1
+    WHERE b.IsActief = 1
+      AND (
+          p_Status IS NULL
+          OR p_Status = ''
+          OR b.Bestelstatus = (p_Status COLLATE utf8mb4_unicode_ci)
+      )
+    GROUP BY
+        b.Id,
+        b.BestelNummer,
+        b.Omschrijving,
+        b.Datum,
+        b.Tijd,
+        b.Bestelstatus,
+        k.Id,
+        k.Voornaam,
+        k.Tussenvoegsel,
+        k.Achternaam,
+        k.Relatienummer
+    ORDER BY b.Datum DESC, b.Tijd DESC, b.BestelNummer DESC;
 END$$
 
 DELIMITER ;
