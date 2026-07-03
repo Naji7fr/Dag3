@@ -1,20 +1,22 @@
 @extends('layouts.app')
 
+@section('title', $pageTitle)
+
 @section('content')
 <div class="breadcrumbs">
     <a href="{{ route('home') }}">Home</a> / <a href="{{ route('medewerkers.index') }}">Medewerkers</a> / Wijzigen
 </div>
 
-<h1 class="page-title">Medewerker wijzigen</h1>
+<h1 class="page-title">Medewerker wijzigen
+    @if($medewerker['Tussenvoegsel'])
+        {{ $medewerker['Voornaam'] }} {{ $medewerker['Tussenvoegsel'] }} {{ $medewerker['Achternaam'] }}
+    @else
+        {{ $medewerker['Voornaam'] }} {{ $medewerker['Achternaam'] }}
+    @endif
+</h1>
 
 @if(session('error'))
     <div class="alert alert-error">{{ session('error') }}</div>
-@endif
-
-@if($errors->any())
-    <div class="alert alert-error">
-        Medewerkergegevens zijn niet bijgewerkt
-    </div>
 @endif
 
 <div class="card form-card">
@@ -28,34 +30,32 @@
         @method('PUT')
 
         <div class="form-grid">
+            <!-- Naam (combined field for form compatibility) -->
             <div class="form-group">
-                <label for="voornaam">Voornaam <span class="required">*</span></label>
-                <input type="text" id="voornaam" name="voornaam"
-                       value="{{ old('voornaam', $medewerker['Voornaam']) }}"
-                       @class(['input-error' => $errors->has('voornaam')]) required>
-                @error('voornaam')<div class="field-error">{{ $message }}</div>@enderror
+                <label for="voornaam">Naam <span class="required">*</span></label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="voornaam" name="voornaam" placeholder="Voornaam"
+                           value="{{ old('voornaam', $medewerker['Voornaam']) }}"
+                           @class(['input-error' => $errors->has('voornaam')]) required style="flex: 2;">
+                    <input type="text" id="tussenvoegsel" name="tussenvoegsel" placeholder="Tussenvoegsel"
+                           value="{{ old('tussenvoegsel', $medewerker['Tussenvoegsel']) }}" style="flex: 1;">
+                    <input type="text" id="achternaam" name="achternaam" placeholder="Achternaam"
+                           value="{{ old('achternaam', $medewerker['Achternaam']) }}"
+                           @class(['input-error' => $errors->has('achternaam')]) required style="flex: 2;">
+                </div>
+                @if($errors->has('voornaam') || $errors->has('achternaam'))
+                    <div class="field-error">
+                        @error('voornaam'){{ $message }}@enderror
+                        @error('achternaam'){{ $message }}@enderror
+                    </div>
+                @endif
             </div>
-            <div class="form-group">
-                <label for="tussenvoegsel">Tussenvoegsel</label>
-                <input type="text" id="tussenvoegsel" name="tussenvoegsel"
-                       value="{{ old('tussenvoegsel', $medewerker['Tussenvoegsel']) }}"
-                       @class(['input-error' => $errors->has('tussenvoegsel')])>
-                @error('tussenvoegsel')<div class="field-error">{{ $message }}</div>@enderror
-            </div>
-            <div class="form-group">
-                <label for="achternaam">Achternaam <span class="required">*</span></label>
-                <input type="text" id="achternaam" name="achternaam"
-                       value="{{ old('achternaam', $medewerker['Achternaam']) }}"
-                       @class(['input-error' => $errors->has('achternaam')]) required>
-                @error('achternaam')<div class="field-error">{{ $message }}</div>@enderror
-            </div>
-        </div>
 
-        <div class="form-row-3 form-section">
+            <!-- Specialisatie -->
             <div class="form-group">
                 <label for="specialisatie">Specialisatie <span class="required">*</span></label>
-                <div @class(['custom-dropdown' => true, 'dropdown-error' => $errors->has('specialisatie')])>
-                    <select id="specialisatie" name="specialisatie"
+                <div class="custom-dropdown @error('specialisatie') dropdown-error @enderror">
+                    <select name="specialisatie" id="specialisatie"
                             @class(['input-error' => $errors->has('specialisatie')]) required>
                         <option value="">-- Selecteer specialisatie --</option>
                         @foreach($specialisaties as $spec)
@@ -68,6 +68,8 @@
                 </div>
                 @error('specialisatie')<div class="field-error">{{ $message }}</div>@enderror
             </div>
+
+            <!-- Geboortedatum -->
             <div class="form-group">
                 <label for="geboortedatum">Geboortedatum <span class="required">*</span></label>
                 <input type="date" id="geboortedatum" name="geboortedatum"
@@ -75,9 +77,8 @@
                        @class(['input-error' => $errors->has('geboortedatum')]) required>
                 @error('geboortedatum')<div class="field-error">{{ $message }}</div>@enderror
             </div>
-        </div>
 
-        <div class="form-grid form-section">
+            <!-- Contact e-mail -->
             <div class="form-group">
                 <label for="contact_email">Contact e-mail <span class="required">*</span></label>
                 <input type="email" id="contact_email" name="contact_email"
@@ -85,13 +86,14 @@
                        @class(['input-error' => $errors->has('contact_email')]) required>
                 @error('contact_email')<div class="field-error">{{ $message }}</div>@enderror
             </div>
+
+            <!-- Account e-mail -->
             <div class="form-group">
                 <label for="account_email">Account e-mail</label>
                 <input type="email" id="account_email" value="{{ $medewerker['AccountEmail'] }}" disabled>
             </div>
-        </div>
 
-        <div class="form-row-3 form-section">
+            <!-- Straatnaam -->
             <div class="form-group">
                 <label for="straatnaam">Straatnaam <span class="required">*</span></label>
                 <input type="text" id="straatnaam" name="straatnaam"
@@ -99,6 +101,10 @@
                        @class(['input-error' => $errors->has('straatnaam')]) required>
                 @error('straatnaam')<div class="field-error">{{ $message }}</div>@enderror
             </div>
+        </div>
+
+        <div class="form-row-3 form-section">
+            <!-- Huisnummer -->
             <div class="form-group">
                 <label for="huisnummer">Huisnummer <span class="required">*</span></label>
                 <input type="text" id="huisnummer" name="huisnummer"
@@ -106,16 +112,15 @@
                        @class(['input-error' => $errors->has('huisnummer')]) required>
                 @error('huisnummer')<div class="field-error">{{ $message }}</div>@enderror
             </div>
+
+            <!-- Toevoeging -->
             <div class="form-group">
                 <label for="toevoeging">Toevoeging</label>
                 <input type="text" id="toevoeging" name="toevoeging"
-                       value="{{ old('toevoeging', $medewerker['Toevoeging']) }}"
-                       @class(['input-error' => $errors->has('toevoeging')])>
-                @error('toevoeging')<div class="field-error">{{ $message }}</div>@enderror
+                       value="{{ old('toevoeging', $medewerker['Toevoeging']) }}">
             </div>
-        </div>
 
-        <div class="form-grid form-section">
+            <!-- Postcode -->
             <div class="form-group">
                 <label for="postcode">Postcode <span class="required">*</span></label>
                 <input type="text" id="postcode" name="postcode"
@@ -123,6 +128,10 @@
                        @class(['input-error' => $errors->has('postcode')]) required>
                 @error('postcode')<div class="field-error">{{ $message }}</div>@enderror
             </div>
+        </div>
+
+        <div class="form-grid form-section">
+            <!-- Plaats -->
             <div class="form-group">
                 <label for="plaats">Plaats <span class="required">*</span></label>
                 <input type="text" id="plaats" name="plaats"
@@ -130,36 +139,25 @@
                        @class(['input-error' => $errors->has('plaats')]) required>
                 @error('plaats')<div class="field-error">{{ $message }}</div>@enderror
             </div>
-            <div class="form-group full-width">
+
+            <!-- Mobiel -->
+            <div class="form-group">
                 <label for="mobiel">Mobiel <span class="required">*</span></label>
-                <input type="text" id="mobiel" name="mobiel"
+                <input type="tel" id="mobiel" name="mobiel"
                        value="{{ old('mobiel', $medewerker['Mobiel']) }}"
                        @class(['input-error' => $errors->has('mobiel')]) required>
                 @error('mobiel')<div class="field-error">{{ $message }}</div>@enderror
             </div>
         </div>
 
-        <div class="form-actions" style="margin-top: 20px;">
-            <button type="submit" class="btn btn-primary">Opslaan</button>
-            <a href="{{ route('medewerkers.show', $medewerker['Id']) }}" class="btn btn-outline">Terug</a>
+        <div class="form-footer">
+            <span>Velden met een * zijn verplicht.</span>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Opslaan</button>
+                <a class="btn btn-secondary" href="{{ route('medewerkers.show', $medewerker['Id']) }}">Terug</a>
+            </div>
         </div>
     </form>
 </div>
-
-<script>
-    // Auto-hide success message after 3 seconds
-    document.addEventListener('DOMContentLoaded', function () {
-        const successAlert = document.querySelector('.alert-success');
-        if (successAlert) {
-            setTimeout(function () {
-                successAlert.style.transition = 'opacity 0.3s ease-out';
-                successAlert.style.opacity = '0';
-                setTimeout(function () {
-                    successAlert.remove();
-                }, 300);
-            }, 3000);
-        }
-    });
-</script>
 @endsection
 
