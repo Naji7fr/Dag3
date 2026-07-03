@@ -115,6 +115,49 @@
         return true;
     }
 
+    function berekenBestelproductTotaal(unitPrijs, aantal, korting, btwPercentage) {
+        const subtotaal = (unitPrijs * aantal) - korting;
+        const btw = subtotaal * (btwPercentage / 100);
+
+        return subtotaal + btw;
+    }
+
+    function formatEuro(bedrag) {
+        return '€ ' + bedrag.toFixed(2).replace('.', ',');
+    }
+
+    function updateBestelproductTotaal(formElement) {
+        const aantalField = formElement.querySelector('#aantal');
+        const totaalField = formElement.querySelector('#totaal');
+
+        if (!aantalField || !totaalField) {
+            return;
+        }
+
+        const unitPrijs = parseFloat(formElement.dataset.unitPrijs || '0');
+        const korting = parseFloat(formElement.dataset.korting || '0');
+        const btw = parseFloat(formElement.dataset.btw || '0');
+        const aantal = parseInt(aantalField.value, 10) || 0;
+
+        totaalField.value = formatEuro(berekenBestelproductTotaal(unitPrijs, aantal, korting, btw));
+    }
+
+    function validateBestelproductForm(formElement) {
+        const aantalField = formElement.querySelector('#aantal');
+        const aantalValue = parseInt(normalizeValue(aantalField), 10);
+        let isValid = true;
+
+        if (!normalizeValue(aantalField)) {
+            isValid = setClientError(aantalField, 'Aantal is verplicht.') && isValid;
+        } else if (Number.isNaN(aantalValue) || aantalValue < 1) {
+            isValid = setClientError(aantalField, 'Aantal moet minimaal 1 zijn.') && isValid;
+        } else {
+            setClientError(aantalField, '');
+        }
+
+        return isValid;
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const klantForm = document.getElementById('klant-edit-form');
         if (klantForm) {
@@ -129,6 +172,25 @@
         if (searchForm) {
             searchForm.addEventListener('submit', function (event) {
                 if (!validatePostcodeSearchForm(searchForm)) {
+                    event.preventDefault();
+                }
+            });
+        }
+
+        const bestelproductForm = document.getElementById('bestelproduct-edit-form');
+        if (bestelproductForm) {
+            const aantalField = bestelproductForm.querySelector('#aantal');
+
+            updateBestelproductTotaal(bestelproductForm);
+
+            if (aantalField) {
+                aantalField.addEventListener('input', function () {
+                    updateBestelproductTotaal(bestelproductForm);
+                });
+            }
+
+            bestelproductForm.addEventListener('submit', function (event) {
+                if (!validateBestelproductForm(bestelproductForm)) {
                     event.preventDefault();
                 }
             });
