@@ -229,12 +229,14 @@ DROP PROCEDURE IF EXISTS sp_Medewerker_GetSpecialisaties$$
 CREATE PROCEDURE sp_Medewerker_GetSpecialisaties()
 BEGIN
     /*
-     * Haalt alle unieke specialisaties op van actieve medewerkers.
+     * Haalt alle unieke behandelingnamen op (specialisaties) uit de Behandeling tabel.
+     * Dit zorgt ervoor dat alle behandelingstypen in de dropdown verschijnen,
+     * ook als er geen medewerker aan toegewezen is.
      */
-    SELECT DISTINCT m.Specialisatie
-    FROM Medewerker m
-    WHERE m.IsActief = 1
-    ORDER BY m.Specialisatie ASC;
+    SELECT DISTINCT b.Naam AS Specialisatie
+    FROM Behandeling b
+    WHERE b.IsActief = 1
+    ORDER BY b.Naam ASC;
 END$$
 
 DELIMITER ;
