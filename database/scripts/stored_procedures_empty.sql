@@ -170,11 +170,11 @@ BEGIN
         k.Tussenvoegsel,
         k.Achternaam,
         k.Relatienummer,
-        GROUP_CONCAT(
-            CONCAT(p.Naam, ' (', ppb.Aantal, 'x)')
-            ORDER BY p.Naam
-            SEPARATOR ', '
-        ) AS Producten
+        COUNT(ppb.Id) AS AantalProducten,
+        ROUND(SUM(
+            ((ppb.UnitPrijs * ppb.Aantal) - ppb.Korting)
+            * (1 + (ppb.BTWPercentage / 100))
+        ), 2) AS Totaal
     FROM Bestelling b
     INNER JOIN Klant k ON k.Id = b.KlantId AND k.IsActief = 1
     INNER JOIN ProductPerBestelling ppb ON ppb.BestellingId = b.Id AND ppb.IsActief = 1

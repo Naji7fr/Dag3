@@ -38,4 +38,9 @@ class BestellingFormatter
 
         return substr((string) $tijd, 0, 5);
     }
+
+    public static function formatEuro(float $bedrag): string
+    {
+        return 'EUR '.number_format($bedrag, 2, ',', '.');
+    }
 }

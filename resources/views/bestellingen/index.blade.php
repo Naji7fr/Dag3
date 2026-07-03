@@ -11,7 +11,7 @@
 
 <div class="card search-card">
     <form method="get" action="{{ route('bestellingen.index') }}" id="status-filter-form" novalidate>
-        <label for="status">Status</label>
+        <label for="status">Status selecteren</label>
         <div class="search-row">
             <select
                 id="status"
@@ -36,7 +36,7 @@
 
 <div class="card table-card">
     <div class="table-meta">
-        <span>Gevonden bestellingen - {{ $bestellingen->total() }} bestelling(en)</span>
+        <span>Gevonden bestellingen {{ $bestellingen->total() }} bestelling(en)</span>
         @if($bestellingen->lastPage() > 1)
             @include('partials.pagination', ['paginator' => $bestellingen])
         @endif
@@ -46,12 +46,14 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th>Bestelnummer</th>
+                <th>Bestelnr.</th>
                 <th>Klant</th>
+                <th>Relatienr.</th>
                 <th>Datum</th>
                 <th>Tijd</th>
                 <th>Status</th>
                 <th>Producten</th>
+                <th>Totaal</th>
                 <th>Actie</th>
             </tr>
         </thead>
@@ -60,17 +62,19 @@
                 <tr>
                     <td>{{ $bestelling['BestelNummer'] }}</td>
                     <td>{{ \App\Services\BestellingFormatter::formatKlantNaam($bestelling) }}</td>
+                    <td>{{ $bestelling['Relatienummer'] }}</td>
                     <td>{{ \App\Services\BestellingFormatter::formatDatum($bestelling['Datum'] ?? '') }}</td>
                     <td>{{ \App\Services\BestellingFormatter::formatTijd($bestelling['Tijd'] ?? '') }}</td>
                     <td>{{ $bestelling['Bestelstatus'] }}</td>
-                    <td>{{ $bestelling['Producten'] ?? '' }}</td>
+                    <td>{{ $bestelling['AantalProducten'] ?? 0 }}</td>
+                    <td>{{ \App\Services\BestellingFormatter::formatEuro((float) ($bestelling['Totaal'] ?? 0)) }}</td>
                     <td>
                         <span class="btn btn-outline btn-disabled">Producten</span>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="empty-message">
+                    <td colspan="9" class="empty-message">
                         @if(!empty($status))
                             Er zijn geen bestellingen bekend met deze status
                         @else
