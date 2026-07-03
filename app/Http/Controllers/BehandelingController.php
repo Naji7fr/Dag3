@@ -17,7 +17,16 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use PDOException;
+use Throwable;
 
+/**
+ * BehandelingController
+ * 
+ * Beheert behandelingen (treatments) en hun gerelateerde producten.
+ * Alle database-fouten worden gelogd en gebruiker krijgt foutmelding.
+ */
 class BehandelingController extends Controller
 {
     /**
@@ -26,71 +35,74 @@ class BehandelingController extends Controller
      * GET /behandelingen
      * 
      * @param Request $request - HTTP request met optionele 'behandeling' query parameter
-     * @return View - behandelingen.index view met:
-     *               - behandelingen: lijst met paginatie (4 per pagina)
-     *               - allBehandelingen: alle beschikbare behandelingen voor dropdown
-     *               - selectedBehandeling: geselecteerde filter (null als geen)
+     * @return View|RedirectResponse - behandelingen.index view of redirect bij fout
      * 
-     * Sorteervolgorde (vast):
-     * 1. Combi behandelingen
-     * 2. Extensions
-     * 3. Kleuren
-     * 4. Knippen
-     * 5. Overige
+     * Sorteervolgorde: 1. Combi > 2. Extensions > 3. Kleuren > 4. Knippen > 5. Overige
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
-        // Haal de geselecteerde behandeling uit de query string
-        // Dit wordt gebruikt voor filtering in de dropdown
-        $selectedBehandeling = $request->query('behandeling', null);
-        
-        // Query 1: Haal ALLE actieve behandelingen op voor de filter dropdown
-        // Deze zijn alfabetisch gesorteerd voor gemakkelijk zoeken
-        $allBehandelingen = DB::table('Behandeling')
-            ->where('IsActief', true)
-            ->orderBy('Naam')
-            ->get();
-        
-        // Query 2: Haal behandelingen op MET het aantal gerelateerde producten
-        // Relaties: Behandeling -> BehandelingPerVoorraad -> Voorraad -> Product
-        // We gebruiken leftJoin omdat een behandeling ook 0 producten kan hebben
-        $query = DB::table('Behandeling as b')
-            ->leftJoin('BehandelingPerVoorraad as bpv', 'b.Id', '=', 'bpv.BehandelingId')
-            ->leftJoin('Voorraad as v', 'bpv.VoorraadId', '=', 'v.Id')
-            ->leftJoin('Product as p', 'v.ProductId', '=', 'p.Id')
-            ->where('b.IsActief', true)  // Alleen actieve behandelingen
-            ->select(
-                'b.Id',
-                'b.Naam',
-                'b.Omschrijving',
-                'b.Duurminuten',
-                'b.Prijs',
-                DB::raw('COUNT(DISTINCT p.Id) as aantal_producten')  // Tel unieke producten
-            )
-            ->groupBy('b.Id', 'b.Naam', 'b.Omschrijving', 'b.Duurminuten', 'b.Prijs')
-            // Vaste sorteervolgorde per business requirement
-            ->orderByRaw("CASE 
-                WHEN b.Naam = 'Combi behandelingen' THEN 1
-                WHEN b.Naam = 'Extensions' THEN 2
-                WHEN b.Naam = 'Kleuren' THEN 3
-                WHEN b.Naam = 'Knippen' THEN 4
-                ELSE 5
-            END");
-        
-        // Filter toepassen als gebruiker iets heeft geselecteerd
-        if ($selectedBehandeling && $selectedBehandeling !== 'Alle behandelingen') {
-            $query->where('b.Naam', '=', $selectedBehandeling);
+        try {
+            $selectedBehandeling = $request->query('behandeling', null);
+            
+            // Haal ALLE actieve behandelingen op voor dropdown
+            $allBehandelingen = DB::table('Behandeling')
+                ->where('IsActief', true)
+                ->orderBy('Naam')
+                ->get();
+            
+            // Haal behandelingen op met aantal gerelateerde producten
+            $query = DB::table('Behandeling as b')
+                ->leftJoin('BehandelingPerVoorraad as bpv', 'b.Id', '=', 'bpv.BehandelingId')
+                ->leftJoin('Voorraad as v', 'bpv.VoorraadId', '=', 'v.Id')
+                ->leftJoin('Product as p', 'v.ProductId', '=', 'p.Id')
+                ->where('b.IsActief', true)
+                ->select(
+                    'b.Id',
+                    'b.Naam',
+                    'b.Omschrijving',
+                    'b.Duurminuten',
+                    'b.Prijs',
+                    DB::raw('COUNT(DISTINCT p.Id) as aantal_producten')
+                )
+                ->groupBy('b.Id', 'b.Naam', 'b.Omschrijving', 'b.Duurminuten', 'b.Prijs')
+                ->orderByRaw("CASE 
+                    WHEN b.Naam = 'Combi behandelingen' THEN 1
+                    WHEN b.Naam = 'Extensions' THEN 2
+                    WHEN b.Naam = 'Kleuren' THEN 3
+                    WHEN b.Naam = 'Knippen' THEN 4
+                    ELSE 5
+                END");
+            
+            // Filter toepassen
+            if ($selectedBehandeling && $selectedBehandeling !== 'Alle behandelingen') {
+                $query->where('b.Naam', '=', $selectedBehandeling);
+            }
+            
+            $behandelingen = $query->paginate(4);
+            
+            return view('behandelingen.index', [
+                'behandelingen' => $behandelingen,
+                'allBehandelingen' => $allBehandelingen,
+                'selectedBehandeling' => $selectedBehandeling,
+            ]);
+        } catch (PDOException $exception) {
+            Log::error('Databasefout bij ophalen behandelingen.', [
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('home')
+                ->with('error', 'Behandelingen kunnen momenteel niet worden geladen.');
+        } catch (Throwable $exception) {
+            Log::error('Onverwachte fout in BehandelingController::index', [
+                'message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
+
+            return redirect()
+                ->route('home')
+                ->with('error', 'Er is een onverwachte fout opgetreden.');
         }
-        
-        // Paginatie: 4 items per pagina
-        $behandelingen = $query->paginate(4);
-        
-        // Render de view met alle gegevens
-        return view('behandelingen.index', [
-            'behandelingen' => $behandelingen,           // Gefilterde behandelingen met paginatie
-            'allBehandelingen' => $allBehandelingen,     // Alle behandelingen voor dropdown
-            'selectedBehandeling' => $selectedBehandeling, // Huidige filter
-        ]);
     }
 
     /**
@@ -99,36 +111,49 @@ class BehandelingController extends Controller
      * GET /behandelingen/{id}
      * 
      * @param int $id - ID van de behandeling
-     * @return View - behandelingen.show view met:
-     *               - behandeling: behandeling details
-     *               - producten: lijst met producten en voorraadaantallen
-     * 
-     * Deze methode haalt de behandeling op en alle gerelateerde producten
-     * via de BehandelingPerVoorraad linking table.
+     * @return View|RedirectResponse - behandelingen.show view of redirect bij fout
      */
-    public function show(int $id): View
+    public function show(int $id): View|RedirectResponse
     {
-        // Haal behandeling op met gegeven ID
-        // firstOrFail() geeft 404 als niet gevonden
-        $behandeling = DB::table('Behandeling')
-            ->where('Id', $id)
-            ->where('IsActief', true)  // Alleen actieve behandelingen
-            ->firstOrFail();
-        
-        // Haal alle producten voor deze behandeling
-        // Relationeel pad: BehandelingPerVoorraad (linking) -> Voorraad -> Product
-        $producten = DB::table('BehandelingPerVoorraad as bpv')
-            ->join('Voorraad as v', 'bpv.VoorraadId', '=', 'v.Id')
-            ->join('Product as p', 'v.ProductId', '=', 'p.Id')
-            ->where('bpv.BehandelingId', $id)  // Producten voor deze behandeling
-            ->where('bpv.IsActief', true)      // Alleen actieve koppelingen
-            ->select('p.*', 'v.AantalOpVoorraad')  // Include voorraadaantal
-            ->get();
-        
-        return view('behandelingen.show', [
-            'behandeling' => $behandeling,
-            'producten' => $producten,
-        ]);
+        try {
+            // Haal behandeling op
+            $behandeling = DB::table('Behandeling')
+                ->where('Id', $id)
+                ->where('IsActief', true)
+                ->firstOrFail();
+            
+            // Haal alle producten voor deze behandeling
+            $producten = DB::table('BehandelingPerVoorraad as bpv')
+                ->join('Voorraad as v', 'bpv.VoorraadId', '=', 'v.Id')
+                ->join('Product as p', 'v.ProductId', '=', 'p.Id')
+                ->where('bpv.BehandelingId', $id)
+                ->where('bpv.IsActief', true)
+                ->select('p.*', 'v.AantalOpVoorraad')
+                ->get();
+            
+            return view('behandelingen.show', [
+                'behandeling' => $behandeling,
+                'producten' => $producten,
+            ]);
+        } catch (PDOException $exception) {
+            Log::error('Databasefout bij ophalen behandelingdetails.', [
+                'behandelingId' => $id,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('behandelingen.index')
+                ->with('error', 'Behandelinggegevens kunnen niet worden geladen.');
+        } catch (Throwable $exception) {
+            Log::error('Onverwachte fout in BehandelingController::show', [
+                'behandelingId' => $id,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('behandelingen.index')
+                ->with('error', 'Er is een onverwachte fout opgetreden.');
+        }
     }
 
     /**
@@ -137,37 +162,47 @@ class BehandelingController extends Controller
      * GET /behandelingen/product/{productId}/wijzigen
      * 
      * @param int $productId - ID van het product
-     * @return View - behandelingen.edit-product view met:
-     *               - product: product details
-     *               - leverancier: leverancier informatie (als beschikbaar)
-     * 
-     * Deze methode haalt het product en de leverancier informatie op
-     * zodat de gebruiker de prijs kan wijzigen.
+     * @return View|RedirectResponse - behandelingen.edit-product view of redirect bij fout
      */
-    public function editProduct(int $productId): View
+    public function editProduct(int $productId): View|RedirectResponse
     {
-        // Haal product op
-        $product = DB::table('Product as p')
-            ->leftJoin('Leverancier as l', function ($join) {
-                $join->on('p.Id', '=', DB::raw('(SELECT ProductId FROM LeverancierOrder WHERE ProductId = p.Id LIMIT 1)'));
-            })
-            ->select('p.*')  // Alle product kolommen
-            ->where('p.Id', $productId)
-            ->where('p.IsActief', true)  // Alleen actieve producten
-            ->firstOrFail();  // 404 als niet gevonden
-        
-        // Haal leverancier informatie op via LeverancierOrder
-        // first() retourneert null als geen leverancier gevonden
-        $leverancier = DB::table('LeverancierOrder as lo')
-            ->join('Leverancier as l', 'lo.LeverancierId', '=', 'l.Id')
-            ->where('lo.ProductId', $productId)  // Leverancierorder voor dit product
-            ->select('l.*')  // Alle leverancier gegevens
-            ->first();  // Haal eerste (meestal enige) leverancier
-        
-        return view('behandelingen.edit-product', [
-            'product' => $product,
-            'leverancier' => $leverancier,
-        ]);
+        try {
+            // Haal product op
+            $product = DB::table('Product')
+                ->where('Id', $productId)
+                ->where('IsActief', true)
+                ->firstOrFail();
+            
+            // Haal leverancier informatie op
+            $leverancier = DB::table('LeverancierOrder as lo')
+                ->join('Leverancier as l', 'lo.LeverancierId', '=', 'l.Id')
+                ->where('lo.ProductId', $productId)
+                ->select('l.*')
+                ->first();
+            
+            return view('behandelingen.edit-product', [
+                'product' => $product,
+                'leverancier' => $leverancier,
+            ]);
+        } catch (PDOException $exception) {
+            Log::error('Databasefout bij ophalen productdetails.', [
+                'productId' => $productId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('behandelingen.index')
+                ->with('error', 'Productgegevens kunnen niet worden geladen.');
+        } catch (Throwable $exception) {
+            Log::error('Onverwachte fout in BehandelingController::editProduct', [
+                'productId' => $productId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('behandelingen.index')
+                ->with('error', 'Er is een onverwachte fout opgetreden.');
+        }
     }
 
     /**
@@ -179,49 +214,68 @@ class BehandelingController extends Controller
      * @param int $productId - ID van het product
      * @return RedirectResponse - Redirect naar product detail pagina
      * 
-     * Validatie:
-     * - Verkoopprijs moet numeriek zijn
-     * - Verkoopprijs moet minimaal 30% boven inkoopprijs liggen (business rule)
-     * 
-     * Bij succes: product bijgewerkt en succes-bericht getoond
-     * Bij fout: terug naar formulier met fouten
+     * Validatie: verkoopprijs minimaal 30% boven inkoopprijs (business rule)
      */
     public function updateProduct(Request $request, int $productId): RedirectResponse
     {
-        // Haal product op met inkoopprijs
-        // Deze hebben we nodig om minimumprijs te berekenen
-        $product = DB::table('Product')
-            ->where('Id', $productId)
-            ->where('IsActief', true)  // Alleen actieve producten
-            ->firstOrFail();
-        
-        // Bereken minimumverkoopprijs: inkoopprijs × 1,30 (30% markup)
-        // Dit is een business rule voor winstmarge
-        $minVerkoopprijs = $product->InkoopPrijs * 1.30;
-        
-        // Valideer invoer
-        $validated = $request->validate([
-            'verkoopprijs' => [
-                'required',          // Verplicht
-                'numeric',           // Moet getal zijn
-                'min:' . $minVerkoopprijs,  // Minimaal 30% boven inkoopprijs
-            ],
-        ], [
-            'verkoopprijs.min' => 'Verkoopprijs moet minimaal 30 procent boven de inkoopprijs liggen.',
-        ]);
-        
-        // Update productprijs in database
-        DB::table('Product')
-            ->where('Id', $productId)
-            ->update([
-                'VerkoopPrijs' => $validated['verkoopprijs'],  // Nieuwe prijs
-                'DatumGewijzigd' => now(),  // Timestamp van wijziging
+        try {
+            // Haal product op met inkoopprijs (voor validatie)
+            $product = DB::table('Product')
+                ->where('Id', $productId)
+                ->where('IsActief', true)
+                ->firstOrFail();
+            
+            // Bereken minimumverkoopprijs: inkoopprijs × 1,30
+            $minVerkoopprijs = $product->InkoopPrijs * 1.30;
+            
+            // Valideer invoer
+            $validated = $request->validate([
+                'verkoopprijs' => [
+                    'required',
+                    'numeric',
+                    'min:' . $minVerkoopprijs,
+                ],
+            ], [
+                'verkoopprijs.required' => 'Verkoopprijs is verplicht.',
+                'verkoopprijs.numeric' => 'Verkoopprijs moet een getal zijn.',
+                'verkoopprijs.min' => 'Verkoopprijs moet minimaal 30 procent boven de inkoopprijs liggen.',
             ]);
-        
-        // Redirect terug naar product detail met succes-bericht
-        return redirect()
-            ->route('behandelingen.product-detail', $productId)
-            ->with('success', 'Productprijs bijgewerkt');
+            
+            // Update productprijs
+            DB::table('Product')
+                ->where('Id', $productId)
+                ->update([
+                    'VerkoopPrijs' => $validated['verkoopprijs'],
+                    'DatumGewijzigd' => now(),
+                ]);
+            
+            Log::info('Productprijs bijgewerkt.', [
+                'productId' => $productId,
+                'newPrice' => $validated['verkoopprijs'],
+            ]);
+            
+            return redirect()
+                ->route('behandelingen.product-detail', $productId)
+                ->with('success', 'Productprijs bijgewerkt');
+        } catch (PDOException $exception) {
+            Log::error('Databasefout bij bijwerken productprijs.', [
+                'productId' => $productId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('behandelingen.index')
+                ->with('error', 'Productprijs kon niet worden opgeslagen.');
+        } catch (Throwable $exception) {
+            Log::error('Onverwachte fout in BehandelingController::updateProduct', [
+                'productId' => $productId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('behandelingen.index')
+                ->with('error', 'Er is een onverwachte fout opgetreden.');
+        }
     }
 
 
@@ -231,37 +285,48 @@ class BehandelingController extends Controller
      * GET /behandelingen/product/{productId}
      * 
      * @param int $productId - ID van het product
-     * @return View - behandelingen.product-detail view met:
-     *               - product: volledige product informatie
-     *               - leverancier: leverancier details (als beschikbaar)
-     * 
-     * Deze methode wordt gebruikt in twee contexten:
-     * 1. Na het bekijken van een product uit behandeling
-     * 2. Na het wijzigen van de prijs (terug naar detail)
-     * 
-     * Toont alle product info inclusief leverancier contact gegevens.
+     * @return View|RedirectResponse - behandelingen.product-detail view of redirect bij fout
      */
-    public function showProduct(int $productId): View
+    public function showProduct(int $productId): View|RedirectResponse
     {
-        // Haal product op met categorie informatie
-        $product = DB::table('Product as p')
-            ->leftJoin('Categorie as c', 'p.CategorieId', '=', 'c.Id')
-            ->where('p.Id', $productId)
-            ->where('p.IsActief', true)  // Alleen actieve producten
-            ->select('p.*', 'c.Naam as CategoriaNaam')  // Voeg categorienaam toe
-            ->firstOrFail();  // 404 als niet gevonden
-        
-        // Haal leverancier informatie op
-        // LeverancierOrder bevat de koppelingen tussen Product en Leverancier
-        $leverancier = DB::table('LeverancierOrder as lo')
-            ->join('Leverancier as l', 'lo.LeverancierId', '=', 'l.Id')
-            ->where('lo.ProductId', $productId)  // Leverancierorder voor dit product
-            ->select('l.*')  // Alle leverancier details
-            ->first();  // Haal eerste leverancier (null als geen)
-        
-        return view('behandelingen.product-detail', [
-            'product' => $product,      // Product gegevens
-            'leverancier' => $leverancier,  // Leverancier gegevens (kan null zijn)
-        ]);
+        try {
+            // Haal product op met categorie informatie
+            $product = DB::table('Product as p')
+                ->leftJoin('Categorie as c', 'p.CategorieId', '=', 'c.Id')
+                ->where('p.Id', $productId)
+                ->where('p.IsActief', true)
+                ->select('p.*', 'c.Naam as CategoriaNaam')
+                ->firstOrFail();
+            
+            // Haal leverancier informatie op
+            $leverancier = DB::table('LeverancierOrder as lo')
+                ->join('Leverancier as l', 'lo.LeverancierId', '=', 'l.Id')
+                ->where('lo.ProductId', $productId)
+                ->select('l.*')
+                ->first();
+            
+            return view('behandelingen.product-detail', [
+                'product' => $product,
+                'leverancier' => $leverancier,
+            ]);
+        } catch (PDOException $exception) {
+            Log::error('Databasefout bij ophalen productdetails.', [
+                'productId' => $productId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('behandelingen.index')
+                ->with('error', 'Productgegevens kunnen niet worden geladen.');
+        } catch (Throwable $exception) {
+            Log::error('Onverwachte fout in BehandelingController::showProduct', [
+                'productId' => $productId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('behandelingen.index')
+                ->with('error', 'Er is een onverwachte fout opgetreden.');
+        }
     }
 }
