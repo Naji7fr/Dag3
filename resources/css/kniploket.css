@@ -1,12 +1,15 @@
-* {
+﻿*,
+*::before,
+*::after {
     box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
     margin: 0;
-    background: #f3f5f9;
-    color: #4b5563;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f3f3f3;
+    color: #333;
+    min-height: 100vh;
 }
 
 a {
@@ -21,13 +24,12 @@ a {
 }
 
 .site-header {
-    background: #d40935;
+    background: #b91c3c;
     color: #fff;
     padding: 0;
     position: sticky;
     top: 0;
     z-index: 1000;
-    height: 46px;
 }
 
 .site-header--minimal {
@@ -39,21 +41,20 @@ a {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 0 90px;
-    height: 46px;
-    max-width: 100%;
+    padding: 0 24px;
+    height: 64px;
+    max-width: 1400px;
     margin: 0 auto;
     width: 100%;
 }
 
 .brand {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: 1px;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
     white-space: nowrap;
     color: #fff;
     flex-shrink: 0;
-    margin-right: 100px;
 }
 
 .menu-toggle {
@@ -98,26 +99,21 @@ a {
 .main-nav {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 4px;
     flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: center;
     flex: 1;
-    font-size: 12px;
-    font-weight: 700;
 }
 
 .main-nav a {
     color: #fff;
-    padding: 10px 4px;
+    padding: 8px 12px;
     border-radius: 6px;
-    font-size: 12px;
-    opacity: 0.95;
+    font-size: 0.95rem;
 }
 
 .main-nav a.active {
-    background: #a9366b;
-    padding: 11px 13px;
-    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.25);
 }
 
 .mobile-user-panel {
@@ -129,14 +125,12 @@ a {
     align-items: center;
     gap: 12px;
     white-space: nowrap;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 0.9rem;
     flex-shrink: 0;
 }
 
 .user-label {
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 0.85rem;
 }
 
 .logout-form {
@@ -145,14 +139,13 @@ a {
 }
 
 .btn-logout {
-    border: 2px solid rgba(255,255,255,0.25);
+    border: 1px solid #fff;
     background: transparent;
     color: #fff;
-    border-radius: 8px;
-    padding: 8px 10px;
-    font-size: 12px;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 0.9rem;
     cursor: pointer;
-    font-weight: 700;
 }
 
 .nav-overlay {
@@ -192,32 +185,6 @@ body.menu-open {
     background: #f3f3f3;
 }
 
-.container {
-    width: 86%;
-    margin: 48px auto 0;
-}
-
-.breadcrumb {
-    font-size: 13px;
-    font-weight: 700;
-    color: #9ca3af;
-    margin-bottom: 18px;
-}
-
-.breadcrumb a {
-    color: #3b82f6;
-}
-
-.breadcrumb span {
-    color: #d40935;
-}
-
-h1 {
-    color: #d40935;
-    font-size: 24px;
-    margin: 0 0 12px;
-}
-
 .login-wrap {
     width: 100%;
     max-width: 440px;
@@ -229,7 +196,7 @@ h1 {
 }
 
 .login-title {
-    color: #d40935;
+    color: #b91c3c;
     font-size: 1.75rem;
     margin: 0 0 8px;
 }
@@ -244,159 +211,6 @@ h1 {
     font-size: 0.85rem;
     color: #666;
     line-height: 1.5;
-}
-
-.filter-card {
-    background: white;
-    border-radius: 16px;
-    min-height: 90px;
-    padding: 18px 16px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-}
-
-.filter-box {
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-    margin-left: auto;
-}
-
-.form-group label {
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 6px;
-    color: #6b7280;
-}
-
-.behandeling-select {
-    width: 200px;
-    height: 36px;
-    border: 1px solid #d1d5db;
-    border-radius: 7px;
-    padding: 0 10px;
-    color: #6b7280;
-    background: white;
-}
-
-select {
-    width: 200px;
-    height: 36px;
-    border: 1px solid #d1d5db;
-    border-radius: 7px;
-    padding: 0 10px;
-    color: #6b7280;
-    background: white;
-}
-
-.btn {
-    height: 36px;
-    border: none;
-    border-radius: 7px;
-    padding: 0 20px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.btn-primary {
-    background: #d40935;
-    color: white;
-}
-
-.btn-secondary {
-    background: #dbeafe;
-    color: #0284c7;
-    border-radius: 20px;
-    padding: 0 24px;
-}
-
-.table-card {
-    background: white;
-    border-radius: 16px;
-    padding: 16px 10px 20px;
-    box-shadow: 0 18px 35px rgba(0,0,0,0.04);
-}
-
-.found {
-    color: #aab3c2;
-    font-weight: 700;
-    font-size: 13px;
-    margin: 0 0 22px 6px;
-}
-
-.pagination {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.page-link {
-    width: 30px;
-    height: 30px;
-    border: 1px solid #e5e7eb;
-    border-radius: 7px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: #d40935;
-    font-weight: 700;
-    font-size: 13px;
-}
-
-.page-link.active {
-    background: #d40935;
-    color: white;
-    border-color: #d40935;
-}
-
-.page-link.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    overflow: hidden;
-}
-
-thead {
-    background: #d40935;
-    color: white;
-}
-
-th {
-    text-align: left;
-    font-size: 14px;
-    padding: 13px 10px;
-}
-
-td {
-    padding: 12px 10px;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 13px;
-    font-weight: 600;
-    color: #667085;
-}
-
-.product-btn {
-    background: white;
-    color: #3b82f6;
-    border: 2px solid #93c5fd;
-    border-radius: 7px;
-    padding: 6px 14px;
-    font-weight: 700;
-    text-decoration: none;
-    font-size: 13px;
-    cursor: pointer;
-    display: inline-block;
 }
 
 .btn-block {
@@ -553,10 +367,8 @@ td {
 }
 
 .btn-secondary {
-    background: #dbeafe;
-    color: #0284c7;
-    border-radius: 20px;
-    padding: 0 24px;
+    background: #6c757d;
+    color: #fff;
 }
 
 .btn-outline {
@@ -826,111 +638,29 @@ td {
     gap: 12px;
 }
 
-/* Filter Section Styles */
-.filter-section {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    padding: 20px 24px;
-    margin-bottom: 20px;
-}
+@media (max-width: 1200px) {
+    .header-inner {
+        gap: 12px;
+    }
 
-.filter-form {
-    display: flex;
-    align-items: flex-end;
-    gap: 16px;
-    flex-wrap: wrap;
-}
+    .main-nav {
+        gap: 2px;
+    }
 
-.filter-controls {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    flex-wrap: wrap;
-}
+    .main-nav a {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
 
-.filter-controls label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #333;
-    font-size: 0.95rem;
-}
+    .header-right {
+        font-size: 0.8rem;
+        gap: 8px;
+    }
 
-.filter-controls select {
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    background-color: #fff;
-    cursor: pointer;
-    min-width: 200px;
-}
-
-.filter-controls .btn {
-    padding: 10px 20px;
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-/* Page Info Styles */
-.page-info {
-    color: #666;
-    font-size: 0.95rem;
-    margin-bottom: 12px;
-    margin-top: 12px;
-}
-
-/* Pagination Info Styles */
-.pagination-info {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    margin-bottom: 16px;
-    justify-content: center;
-}
-
-.pagination-info .page-number {
-    min-width: 34px;
-    height: 34px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    background: #fff;
-    color: #333;
-    font-size: 0.9rem;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.pagination-info .page-number:hover {
-    background: #f5f5f5;
-    border-color: #999;
-}
-
-.pagination-info .page-number.active {
-    background: #b91c3c;
-    border-color: #b91c3c;
-    color: #fff;
-    font-weight: 600;
-}
-
-/* Breadcrumb Styles */
-.breadcrumb {
-    color: #b91c3c;
-    font-size: 0.95rem;
-    margin-bottom: 16px;
-}
-
-.breadcrumb a {
-    color: #b91c3c;
-    text-decoration: none;
-}
-
-.breadcrumb a:hover {
-    text-decoration: underline;
+    .btn-logout {
+        padding: 4px 12px;
+        font-size: 0.8rem;
+    }
 }
 
 @media (max-width: 900px) {
