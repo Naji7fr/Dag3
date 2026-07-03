@@ -53,7 +53,11 @@
             <div class="module-card">
                 <h3>Behandelingen</h3>
                 <p>Overzicht van behandelingen, duur en prijsinformatie.</p>
-                <a class="btn btn-outline" href="#">Openen</a>
+                @if(auth()->user()->isEigenaar())
+                    <a class="btn btn-outline" href="{{ route('behandelingen.index') }}">Openen</a>
+                @else
+                    <span class="module-disabled">Alleen voor eigenaar</span>
+                @endif
             </div>
             <div class="module-card">
                 <h3>Producten</h3>

@@ -39,7 +39,11 @@
                     @endif
                 @endauth
                 <a href="#">Afspraken</a>
-                <a href="#">Behandelingen</a>
+                @auth
+                    @if(auth()->user()->isEigenaar())
+                        <a href="{{ route('behandelingen.index') }}" @class(['active' => ($activeNav ?? '') === 'behandelingen'])>Behandelingen</a>
+                    @endif
+                @endauth
                 <a href="#">Producten</a>
                 <a href="{{ route('bestellingen.index') }}" @class(['active' => ($activeNav ?? '') === 'bestellingen'])>Bestellingen</a>
 
