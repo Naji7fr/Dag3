@@ -57,7 +57,7 @@ class BestellingFormatter
 
     public static function formatEuro(float $bedrag): string
     {
-        return '€ '.number_format($bedrag, 2, ',', '.');
+        return 'EUR '.number_format($bedrag, 2, ',', '.');
     }
 
     /**
