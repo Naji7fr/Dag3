@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BestellingController;
+use App\Http\Controllers\BehandelingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KlantController;
 use App\Http\Controllers\MedewerkerController;
@@ -32,5 +33,11 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/medewerkers/{medewerker}', [MedewerkerController::class, 'show'])->name('medewerkers.show');
         Route::get('/medewerkers/{medewerker}/wijzigen', [MedewerkerController::class, 'edit'])->name('medewerkers.edit');
         Route::put('/medewerkers/{medewerker}', [MedewerkerController::class, 'update'])->name('medewerkers.update');
+
+        Route::get('/behandelingen', [BehandelingController::class, 'index'])->name('behandelingen.index');
+        Route::get('/behandelingen/{id}', [BehandelingController::class, 'show'])->name('behandelingen.show');
+        Route::get('/behandelingen/product/{productId}', [BehandelingController::class, 'showProduct'])->name('behandelingen.product-detail');
+        Route::get('/behandelingen/product/{productId}/wijzigen', [BehandelingController::class, 'editProduct'])->name('behandelingen.edit-product');
+        Route::put('/behandelingen/product/{productId}', [BehandelingController::class, 'updateProduct'])->name('behandelingen.update-product');
     });
 });
