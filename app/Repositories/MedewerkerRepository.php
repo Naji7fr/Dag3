@@ -78,4 +78,55 @@ class MedewerkerRepository
             throw $exception;
         }
     }
+
+    /**
+     * Werkt een medewerker bij via sp_Medewerker_Update.
+     *
+     * @return void
+     */
+    public function updateMedewerker(
+        int $medewerkerId,
+        int $contactId,
+        string $voornaam,
+        ?string $tussenvoegsel,
+        string $achternaam,
+        string $specialisatie,
+        string $geboortedatum,
+        string $straatnaam,
+        string $huisnummer,
+        ?string $toevoeging,
+        string $postcode,
+        string $plaats,
+        string $contactEmail,
+        string $mobiel
+    ): void {
+        try {
+            DB::statement(
+                'CALL sp_Medewerker_Update(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [
+                    $medewerkerId,
+                    $contactId,
+                    $voornaam,
+                    $tussenvoegsel,
+                    $achternaam,
+                    $specialisatie,
+                    $geboortedatum,
+                    $straatnaam,
+                    $huisnummer,
+                    $toevoeging,
+                    $postcode,
+                    $plaats,
+                    $contactEmail,
+                    $mobiel,
+                ]
+            );
+        } catch (PDOException $exception) {
+            Log::error('Fout bij bijwerken medewerker via stored procedure.', [
+                'medewerkerId' => $medewerkerId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            throw $exception;
+        }
+    }
 }
