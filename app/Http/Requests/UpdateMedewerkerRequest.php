@@ -57,17 +57,9 @@ class UpdateMedewerkerRequest extends FormRequest
         if ($specialisatie === 'Permanent' && $geboortedatum) {
             $leeftijd = Carbon::createFromFormat('Y-m-d', $geboortedatum)->age;
             if ($leeftijd < 18) {
-                $this->failedValidation(
-                    validator(
-                        $this->all(),
-                        $this->rules(),
-                        $this->messages()
-                    )->after(function ($validator) {
-                        $validator->errors()->add(
-                            'specialisatie',
-                            'Minderjarige medewerkers mogen geen specialisatie Permanent toegewezen krijgen vanwege het werken met gevaarlijke stoffen en chemicaliën.'
-                        );
-                    })
+                $this->validator->errors()->add(
+                    'specialisatie',
+                    'Minderjarige medewerkers mogen geen specialisatie Permanent toegewezen krijgen vanwege het werken met gevaarlijke stoffen en chemicaliën.'
                 );
             }
         }
