@@ -4,10 +4,8 @@
 
 @section('content')
 <div class="breadcrumbs">
-    <a href="{{ route('home') }}">Home</a> / Medewerkers
+    <a href="{{ route('home') }}">Home</a> / <span class="breadcrumb-current">Medewerkers</span>
 </div>
-
-<h1 class="page-title">Overzicht medewerkers</h1>
 
 @if(!empty($successMessage))
     <div id="flash-alert" class="alert alert-success">{{ $successMessage }}</div>
@@ -17,31 +15,35 @@
     <div class="alert alert-error">{{ $errorMessage }}</div>
 @endif
 
-<div class="card search-card">
-    <form method="get" action="{{ route('medewerkers.index') }}" id="specialisatie-filter-form" novalidate>
-        <label for="specialisatie">Specialisatie</label>
-        <div class="search-row">
-            <div class="custom-dropdown">
-                <select
-                    id="specialisatie"
-                    name="specialisatie"
-                    @class(['input-error' => $errors->has('specialisatie')])
-                >
-                    <option value="">Alle specialisaties</option>
-                    @foreach($specialisaties as $spec)
-                        <option value="{{ $spec['Specialisatie'] }}"
-                            @selected(old('specialisatie', $specialisatie ?? '') === $spec['Specialisatie'])
-                        >
-                            {{ $spec['Specialisatie'] }}
-                        </option>
-                    @endforeach
-                </select>
+<h1 class="page-title">Overzicht medewerkers</h1>
+
+<div class="card klanten-search-bar">
+    <form method="get" action="{{ route('medewerkers.index') }}" id="specialisatie-filter-form" class="klanten-search-form">
+        <div class="klanten-search-controls">
+            <div class="klanten-search-field">
+                <label for="specialisatie">Specialisatie</label>
+                <div class="custom-dropdown">
+                    <select
+                        id="specialisatie"
+                        name="specialisatie"
+                        @class(['input-error' => $errors->has('specialisatie')])
+                    >
+                        <option value="">Alle specialisaties</option>
+                        @foreach($specialisaties as $spec)
+                            <option value="{{ $spec['Specialisatie'] }}"
+                                @selected(old('specialisatie', $specialisatie ?? '') === $spec['Specialisatie'])
+                            >
+                                {{ $spec['Specialisatie'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
             <button type="submit" class="btn btn-primary">Toon medewerkers</button>
             <a href="{{ route('medewerkers.index') }}" class="btn btn-secondary">Reset</a>
         </div>
         @error('specialisatie')
-            <div class="field-error">{{ $message }}</div>
+            <div class="field-error klanten-search-error">{{ $message }}</div>
         @enderror
     </form>
 </div>
@@ -49,7 +51,7 @@
 <div class="card table-card">
     <div class="table-meta">
         <span>
-            Gevonden medewerkers - 
+            Gevonden medewerkers -
             @if($medewerkers->total() > 0)
                 {{ $medewerkers->total() }} medewerker(s)
             @else
@@ -121,7 +123,6 @@
 
 @push('scripts')
 <script>
-    // Auto-hide flash message na {{ $flashAutoHideMs }}ms als aanwezig
     @if($autoHideFlash)
     document.addEventListener('DOMContentLoaded', function() {
         const flashAlert = document.getElementById('flash-alert');

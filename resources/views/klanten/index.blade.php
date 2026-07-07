@@ -4,10 +4,8 @@
 
 @section('content')
 <div class="breadcrumbs">
-    <a href="{{ route('home') }}">Home</a> / Klanten
+    <a href="{{ route('home') }}">Home</a> / <span class="breadcrumb-current">Klanten</span>
 </div>
-
-<h1 class="page-title">Overzicht klanten</h1>
 
 @if(!empty($successMessage))
     <div id="flash-alert" class="alert alert-success">{{ $successMessage }}</div>
@@ -17,25 +15,31 @@
     <div class="alert alert-error">{{ $errorMessage }}</div>
 @endif
 
-<div class="card search-card">
-    <form method="get" action="{{ route('klanten.index') }}" id="postcode-search-form" novalidate>
-        <label for="postcode">Postcode zoeken</label>
-        <div class="search-row">
-            <input
-                type="text"
-                id="postcode"
-                name="postcode"
-                placeholder="Bijv. 3512AB"
-                pattern="[1-9][0-9]{3}\s?[A-Za-z]{2}"
-                title="Voer een geldige Nederlandse postcode in (bijv. 3512AB)"
-                value="{{ old('postcode', $postcode ?? '') }}"
-                @class(['input-error' => $errors->has('postcode')])
-            >
+<h1 class="page-title">Overzicht klanten</h1>
+
+<div class="card klanten-search-bar">
+    <form method="get" action="{{ route('klanten.index') }}" id="postcode-search-form" class="klanten-search-form">
+        <div class="klanten-search-controls">
+            <div class="klanten-search-field">
+                <label for="postcode">Postcode zoeken</label>
+                <input
+                    type="text"
+                    id="postcode"
+                    name="postcode"
+                    placeholder="Bijv. 3512AB"
+                    pattern="[1-9][0-9]{3}\s?[A-Za-z]{2}"
+                    title="Voer een geldige Nederlandse postcode in (bijv. 3512AB)"
+                    maxlength="7"
+                    autocomplete="postal-code"
+                    value="{{ old('postcode', $postcode ?? '') }}"
+                    @class(['input-error' => $errors->has('postcode')])
+                >
+            </div>
             <button type="submit" class="btn btn-primary">Toon klanten</button>
             <a href="{{ route('klanten.index') }}" class="btn btn-secondary">Reset</a>
         </div>
         @error('postcode')
-            <div class="field-error">{{ $message }}</div>
+            <div class="field-error klanten-search-error">{{ $message }}</div>
         @enderror
     </form>
 </div>

@@ -91,5 +91,6 @@
     }, {{ (int) ($flashAutoHideMs ?? config('kniploket.flash_auto_hide_ms', 3000)) }});
 </script>
 @endif
+@stack('scripts')
 </body>
 </html>

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Repositories\KlantRepository;
+use App\Services\DutchAddressValidator;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
@@ -17,6 +18,17 @@ class UpdateKlantRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $postcode = $this->input('postcode');
+
+        if (is_string($postcode) && $postcode !== '') {
+            $this->merge([
+                'postcode' => strtoupper(str_replace(' ', '', trim($postcode))),
+            ]);
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -25,8 +37,22 @@ class UpdateKlantRequest extends FormRequest
         return [
             'naam' => ['required', 'string', 'max:150'],
             'contact_email' => ['required', 'email', 'max:255'],
-            'straatnaam' => ['required', 'string', 'max:150'],
-            'huisnummer' => ['required', 'string', 'max:10'],
+            'straatnaam' => [
+                'required',
+                'string',
+                'max:150',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! is_string($value) || ! DutchAddressValidator::isValidStraatnaam($value)) {
+                        $fail('Voer een geldige Nederlandse straatnaam in (bijv. Oudegracht of Winkel van Sinkelstraat).');
+                    }
+                },
+            ],
+            'huisnummer' => [
+                'required',
+                'string',
+                'max:10',
+                'regex:'.config('kniploket.huisnummer_pattern'),
+            ],
             'toevoeging' => ['nullable', 'string', 'max:10'],
             'postcode' => [
                 'required',
@@ -34,7 +60,16 @@ class UpdateKlantRequest extends FormRequest
                 'max:10',
                 'regex:'.config('kniploket.postcode_pattern'),
             ],
-            'plaats' => ['required', 'string', 'max:100'],
+            'plaats' => [
+                'required',
+                'string',
+                'max:100',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! is_string($value) || ! DutchAddressValidator::isValidPlaats($value)) {
+                        $fail('Voer een geldige Nederlandse plaatsnaam in (bijv. Utrecht).');
+                    }
+                },
+            ],
             'mobiel' => [
                 'required',
                 'string',
@@ -56,11 +91,12 @@ class UpdateKlantRequest extends FormRequest
             'contact_email.email' => 'Voer een geldig e-mailadres in.',
             'straatnaam.required' => 'Straatnaam is verplicht.',
             'huisnummer.required' => 'Huisnummer is verplicht.',
+            'huisnummer.regex' => 'Voer een geldig huisnummer in (bijv. 88 of 12A).',
             'postcode.required' => 'Postcode is verplicht.',
-            'postcode.regex' => 'Voer een geldige Nederlandse postcode in.',
+            'postcode.regex' => 'Voer een geldige Nederlandse postcode in (bijv. 3512AB).',
             'plaats.required' => 'Plaats is verplicht.',
             'mobiel.required' => 'Mobiel nummer is verplicht.',
-            'mobiel.regex' => 'Voer een geldig mobiel nummer in.',
+            'mobiel.regex' => 'Voer een geldig Nederlands mobiel nummer in (bijv. 06XXXXXXXX of +31 6 XXXXXXXX).',
         ];
     }
 

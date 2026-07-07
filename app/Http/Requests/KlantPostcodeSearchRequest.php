@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\DutchAddressValidator;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -36,9 +37,11 @@ class KlantPostcodeSearchRequest extends FormRequest
                 'string',
                 'max:10',
                 function (string $attribute, mixed $value, \Closure $fail): void {
-                    $pattern = config('kniploket.postcode_pattern');
+                    if ($value === null || $value === '') {
+                        return;
+                    }
 
-                    if ($value !== null && $value !== '' && ! preg_match($pattern, (string) $value)) {
+                    if (! DutchAddressValidator::isValidPostcode((string) $value)) {
                         $fail('Voer een geldige Nederlandse postcode in (bijv. 3512AB).');
                     }
                 },
