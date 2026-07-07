@@ -3,6 +3,7 @@
 @section('title', $pageTitle)
 
 @section('content')
+<div class="bestellingen-wrap">
 <div class="breadcrumbs">
     <a href="{{ route('home') }}">Home</a> / <a href="{{ route('bestellingen.index') }}">Bestellingen</a> / Producten
 </div>
@@ -64,5 +65,6 @@
     <div class="detail-actions">
         <a class="btn btn-secondary" href="{{ route('bestellingen.index') }}">Terug</a>
     </div>
+</div>
 </div>
 @endsection

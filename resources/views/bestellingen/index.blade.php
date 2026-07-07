@@ -3,6 +3,7 @@
 @section('title', $pageTitle)
 
 @section('content')
+<div class="bestellingen-wrap">
 <div class="breadcrumbs">
     <a href="{{ route('home') }}">Home</a> / Bestellingen
 </div>
@@ -86,5 +87,6 @@
         </tbody>
     </table>
     </div>
+</div>
 </div>
 @endsection

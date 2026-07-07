@@ -48,8 +48,8 @@ BEGIN
     WHERE k.IsActief = 1
       AND (
           p_Postcode IS NULL
-          OR p_Postcode = ''
-          OR c.Postcode = UPPER(REPLACE(p_Postcode, ' ', ''))
+          OR (p_Postcode COLLATE utf8mb4_unicode_ci) = ''
+          OR c.Postcode = UPPER(REPLACE(p_Postcode COLLATE utf8mb4_unicode_ci, ' ', ''))
       )
     ORDER BY k.Voornaam ASC;
 END$$
@@ -343,8 +343,8 @@ BEGIN
     WHERE m.IsActief = 1
       AND (
           p_Specialisatie IS NULL
-          OR p_Specialisatie = ''
-          OR m.Specialisatie = p_Specialisatie
+          OR (p_Specialisatie COLLATE utf8mb4_unicode_ci) = ''
+          OR m.Specialisatie = (p_Specialisatie COLLATE utf8mb4_unicode_ci)
       )
     ORDER BY m.Voornaam ASC;
 END$$
@@ -482,8 +482,8 @@ BEGIN
     WHERE b.IsActief = 1
       AND (
           p_BehandelingNaam IS NULL
-          OR p_BehandelingNaam = ''
-          OR b.Naam = p_BehandelingNaam
+          OR (p_BehandelingNaam COLLATE utf8mb4_unicode_ci) = ''
+          OR b.Naam = (p_BehandelingNaam COLLATE utf8mb4_unicode_ci)
       )
     GROUP BY b.Id, b.Naam, b.Omschrijving, b.Duurminuten, b.Prijs
     ORDER BY CASE
