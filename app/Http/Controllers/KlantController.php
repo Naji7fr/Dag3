@@ -38,6 +38,11 @@ class KlantController extends Controller
 
             $alleKlanten = $this->klantRepository->getAllKlanten($genormaliseerdePostcode);
 
+            Log::info('Klantenoverzicht geladen.', [
+                'postcode' => $genormaliseerdePostcode,
+                'aantal' => count($alleKlanten),
+            ]);
+
             $klantenPaginator = new LengthAwarePaginator(
                 collect($alleKlanten)->forPage($huidigePagina, $itemsPerPagina)->values(),
                 count($alleKlanten),
@@ -60,7 +65,10 @@ class KlantController extends Controller
                 'flashAutoHideMs' => config('kniploket.flash_auto_hide_ms', 3000),
             ]);
         } catch (PDOException $exception) {
-            Log::error('Databasefout in klantenoverzicht.', ['message' => $exception->getMessage()]);
+            Log::error('Databasefout in klantenoverzicht.', [
+                'postcode' => $postcodeZoekterm ?? null,
+                'message' => $exception->getMessage(),
+            ]);
 
             return redirect()
                 ->route('home')
@@ -90,7 +98,10 @@ class KlantController extends Controller
                 'klant' => $klantRecord,
             ]);
         } catch (PDOException $exception) {
-            Log::error('Databasefout bij klantdetail.', ['message' => $exception->getMessage()]);
+            Log::error('Databasefout bij klantdetail.', [
+                'klantId' => $klant,
+                'message' => $exception->getMessage(),
+            ]);
 
             return redirect()
                 ->route('klanten.index')
@@ -107,6 +118,8 @@ class KlantController extends Controller
             $klantRecord = $this->klantRepository->getKlantById($klant);
 
             if ($klantRecord === null) {
+                Log::warning('Klant niet gevonden voor wijzigen.', ['klantId' => $klant]);
+
                 return redirect()
                     ->route('klanten.index')
                     ->with('error', 'De geselecteerde klant bestaat niet.');
@@ -119,7 +132,10 @@ class KlantController extends Controller
                 'formData' => KlantFormatter::formFromRecord($klantRecord),
             ]);
         } catch (PDOException $exception) {
-            Log::error('Databasefout bij klant wijzigen.', ['message' => $exception->getMessage()]);
+            Log::error('Databasefout bij klant wijzigen.', [
+                'klantId' => $klant,
+                'message' => $exception->getMessage(),
+            ]);
 
             return redirect()
                 ->route('klanten.index')
@@ -136,6 +152,8 @@ class KlantController extends Controller
             $klantRecord = $this->klantRepository->getKlantById($klant);
 
             if ($klantRecord === null) {
+                Log::warning('Klant niet gevonden voor opslaan.', ['klantId' => $klant]);
+
                 return redirect()
                     ->route('klanten.index')
                     ->with('error', 'De geselecteerde klant bestaat niet.');
@@ -166,7 +184,10 @@ class KlantController extends Controller
                 ->route('klanten.index', ['postcode' => $gevalideerdeData['postcode']])
                 ->with('success', 'Klantgegevens bijgewerkt.');
         } catch (PDOException|Throwable $exception) {
-            Log::error('Databasefout bij opslaan klant.', ['message' => $exception->getMessage()]);
+            Log::error('Databasefout bij opslaan klant.', [
+                'klantId' => $klant,
+                'message' => $exception->getMessage(),
+            ]);
 
             return redirect()
                 ->route('klanten.index')
