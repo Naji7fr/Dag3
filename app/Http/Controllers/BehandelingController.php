@@ -18,6 +18,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use PDOException;
 use Throwable;
 
@@ -37,7 +38,7 @@ class BehandelingController extends Controller
      * @param Request $request - HTTP request met optionele 'behandeling' query parameter
      * @return View|RedirectResponse - behandelingen.index view of redirect bij fout
      * 
-     * Sorteervolgorde: 1. Combi > 2. Extensions > 3. Kleuren > 4. Knippen > 5. Overige
+    * Sorteervolgorde: 1. Combi/Stylen > 2. Extensions > 3. Kleuren > 4. Knippen > 5. Overige
      */
     public function index(Request $request): View|RedirectResponse
     {
@@ -66,7 +67,7 @@ class BehandelingController extends Controller
                 )
                 ->groupBy('b.Id', 'b.Naam', 'b.Omschrijving', 'b.Duurminuten', 'b.Prijs')
                 ->orderByRaw("CASE 
-                    WHEN b.Naam = 'Combi behandelingen' THEN 1
+                    WHEN b.Naam IN ('Combi behandelingen', 'Stylen') THEN 1
                     WHEN b.Naam = 'Extensions' THEN 2
                     WHEN b.Naam = 'Kleuren' THEN 3
                     WHEN b.Naam = 'Knippen' THEN 4
@@ -75,7 +76,11 @@ class BehandelingController extends Controller
             
             // Filter toepassen
             if ($selectedBehandeling && $selectedBehandeling !== 'Alle behandelingen') {
-                $query->where('b.Naam', '=', $selectedBehandeling);
+                if ($selectedBehandeling === 'Overige') {
+                    $query->whereNotIn('b.Naam', ['Combi behandelingen', 'Stylen', 'Extensions', 'Kleuren', 'Knippen', 'Permanent']);
+                } else {
+                    $query->where('b.Naam', '=', $selectedBehandeling);
+                }
             }
             
             $behandelingen = $query->paginate(4);
@@ -167,10 +172,13 @@ class BehandelingController extends Controller
     public function editProduct(int $productId): View|RedirectResponse
     {
         try {
-            // Haal product op
-            $product = DB::table('Product')
-                ->where('Id', $productId)
-                ->where('IsActief', true)
+            // Haal product op met voorraad en behandeling context
+            $product = DB::table('Product as p')
+                ->leftJoin('Voorraad as v', 'p.Id', '=', 'v.ProductId')
+                ->leftJoin('BehandelingPerVoorraad as bpv', 'v.Id', '=', 'bpv.VoorraadId')
+                ->where('p.Id', $productId)
+                ->where('p.IsActief', true)
+                ->select('p.*', 'bpv.BehandelingId', DB::raw('COALESCE(v.AantalOpVoorraad, 0) as AantalOpVoorraad'))
                 ->firstOrFail();
             
             // Haal leverancier informatie op
@@ -183,6 +191,7 @@ class BehandelingController extends Controller
             return view('behandelingen.edit-product', [
                 'product' => $product,
                 'leverancier' => $leverancier,
+                'behandelingId' => $product->BehandelingId,
             ]);
         } catch (PDOException $exception) {
             Log::error('Databasefout bij ophalen productdetails.', [
@@ -224,6 +233,13 @@ class BehandelingController extends Controller
                 ->where('Id', $productId)
                 ->where('IsActief', true)
                 ->firstOrFail();
+
+            // Normaliseer Europese decimaalnotatie (bijv. 7,95 -> 7.95)
+            $rawVerkoopprijs = (string) $request->input('verkoopprijs', '');
+            $normalizedVerkoopprijs = str_replace(',', '.', str_replace(' ', '', $rawVerkoopprijs));
+            $request->merge([
+                'verkoopprijs' => $normalizedVerkoopprijs,
+            ]);
             
             // Bereken minimumverkoopprijs: inkoopprijs × 1,30
             $minVerkoopprijs = $product->InkoopPrijs * 1.30;
@@ -257,6 +273,8 @@ class BehandelingController extends Controller
             return redirect()
                 ->route('behandelingen.product-detail', $productId)
                 ->with('success', 'Productprijs bijgewerkt');
+        } catch (ValidationException $exception) {
+            throw $exception;
         } catch (PDOException $exception) {
             Log::error('Databasefout bij bijwerken productprijs.', [
                 'productId' => $productId,
@@ -290,12 +308,19 @@ class BehandelingController extends Controller
     public function showProduct(int $productId): View|RedirectResponse
     {
         try {
-            // Haal product op met categorie informatie
+            // Haal product op met categorie, voorraad en behandeling context
             $product = DB::table('Product as p')
                 ->leftJoin('Categorie as c', 'p.CategorieId', '=', 'c.Id')
+                ->leftJoin('Voorraad as v', 'p.Id', '=', 'v.ProductId')
+                ->leftJoin('BehandelingPerVoorraad as bpv', 'v.Id', '=', 'bpv.VoorraadId')
                 ->where('p.Id', $productId)
                 ->where('p.IsActief', true)
-                ->select('p.*', 'c.Naam as CategoriaNaam')
+                ->select(
+                    'p.*',
+                    'c.Naam as CategorieNaam',
+                    'bpv.BehandelingId',
+                    DB::raw('COALESCE(v.AantalOpVoorraad, 0) as AantalOpVoorraad')
+                )
                 ->firstOrFail();
             
             // Haal leverancier informatie op
@@ -308,6 +333,7 @@ class BehandelingController extends Controller
             return view('behandelingen.product-detail', [
                 'product' => $product,
                 'leverancier' => $leverancier,
+                'behandelingId' => $product->BehandelingId,
             ]);
         } catch (PDOException $exception) {
             Log::error('Databasefout bij ophalen productdetails.', [

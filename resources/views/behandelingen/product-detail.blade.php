@@ -1,75 +1,57 @@
 @extends('layouts.app')
 
-@section('title', $product->Naam)
+@section('title', 'Productdetail - ' . $product->Naam)
 
 @section('content')
-<div class="breadcrumb">
-    <a href="{{ route('home') }}">Home</a> / 
-    <a href="{{ route('behandelingen.index') }}">Behandelingen</a> / 
-    {{ $product->Naam }}
-</div>
-
-<h1 style="color: #D32F2F;">Productdetail</h1>
-<h2 style="color: #6b7280; font-size: 18px; font-weight: 400; margin: 8px 0 20px;">{{ $product->Naam }}</h2>
-
-@if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
-
-<div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-    <div style="display: grid; grid-template-columns: 200px 1fr; gap: 12px 20px;">
-        <div style="font-weight: 700; color: #6b7280;">Product</div>
-        <div style="color: #1f2937;">{{ $product->Naam }}</div>
-
-        <div style="font-weight: 700; color: #6b7280;">Merk</div>
-        <div style="color: #1f2937;">{{ $product->Merk ?? '-' }}</div>
-
-        <div style="font-weight: 700; color: #6b7280;">Omschrijving</div>
-        <div style="color: #1f2937;">{{ $product->Omschrijving ?? '-' }}</div>
-
-        <div style="font-weight: 700; color: #6b7280;">EAN-code</div>
-        <div style="color: #1f2937;">{{ $product->EANcode ?? '-' }}</div>
-
-        <div style="font-weight: 700; color: #6b7280;">Houdbaarheidsdatum</div>
-        <div style="color: #1f2937;">{{ $product->HoudbaarheidsNota ?? '-' }}</div>
-
-        <div style="font-weight: 700; color: #6b7280;">Inkoopprijs</div>
-        <div style="color: #1f2937;">EUR {{ number_format($product->InkoopPrijs, 2, ',', '.') }}</div>
-
-        <div style="font-weight: 700; color: #6b7280;">Verkoopprijs</div>
-        <div style="color: #1f2937;">EUR {{ number_format($product->VerkoopPrijs, 2, ',', '.') }}</div>
-
-        <div style="font-weight: 700; color: #6b7280;">Aantal op voorraad</div>
-        <div style="color: #1f2937;">{{ $product->AantalOpVoorraad ?? 0 }}</div>
-
-        @if($leverancier)
-            <div style="font-weight: 700; color: #6b7280;">Leverancier</div>
-            <div style="color: #1f2937;">{{ $leverancier->Naam }}</div>
-
-            <div style="font-weight: 700; color: #6b7280;">Postcode leverancier</div>
-            <div style="color: #1f2937;">{{ $leverancier->Postcode ?? '-' }}</div>
-
-            <div style="font-weight: 700; color: #6b7280;">Plaats leverancier</div>
-            <div style="color: #1f2937;">{{ $leverancier->Plaats ?? '-' }}</div>
-
-            <div style="font-weight: 700; color: #6b7280;">E-mail leverancier</div>
-            <div style="color: #1f2937;">{{ $leverancier->Email ?? '-' }}</div>
-
-            <div style="font-weight: 700; color: #6b7280;">Mobiel leverancier</div>
-            <div style="color: #1f2937;">{{ $leverancier->Mobiel ?? '-' }}</div>
-
-            <div style="font-weight: 700; color: #6b7280;">Opmerking</div>
-            <div style="color: #1f2937;">{{ $product->Opmerking ?? '-' }}</div>
-        @endif
+<section class="product-detail-overzicht">
+    <div class="breadcrumbs">
+        <a href="{{ route('home') }}">Home</a> /
+        <a href="{{ route('behandelingen.index') }}">Behandelingen</a> /
+        Detail
     </div>
 
-    <div style="border-top: 1px solid #e5e7eb; margin-top: 20px; padding-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
-        <a href="{{ route('behandelingen.edit-product', $product->Id) }}" class="btn btn-primary">
-            Wijzigen
-        </a>
-        <a href="{{ route('behandelingen.index') }}" class="btn btn-secondary">Terug</a>
+    <h1 class="product-detail-title">
+        Productdetail
+        <span>{{ $product->Naam }}</span>
+    </h1>
+
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @php
+        $terugLink = $behandelingId ? route('behandelingen.show', $behandelingId) : route('behandelingen.index');
+    @endphp
+
+    <div class="card product-detail-card">
+        <table class="product-detail-table">
+            <tbody>
+                <tr><th>Product</th><td>{{ $product->Naam }}</td></tr>
+                <tr><th>Merk</th><td>{{ $product->Merk ?? '-' }}</td></tr>
+                <tr><th>Omschrijving</th><td>{{ $product->Omschrijving ?? '-' }}</td></tr>
+                <tr><th>EAN-code</th><td>{{ $product->EANcode ?? '-' }}</td></tr>
+                <tr>
+                    <th>Houdbaarheidsdatum</th>
+                    <td>{{ $product->Houdbaarheidsdatum ? \Carbon\Carbon::parse($product->Houdbaarheidsdatum)->format('d-m-Y') : '-' }}</td>
+                </tr>
+                <tr><th>Inkoopprijs</th><td>EUR {{ number_format($product->InkoopPrijs, 2, ',', '.') }}</td></tr>
+                <tr><th>Verkoopprijs</th><td>EUR {{ number_format($product->VerkoopPrijs, 2, ',', '.') }}</td></tr>
+                <tr><th>Aantal op voorraad</th><td>{{ $product->AantalOpVoorraad ?? 0 }}</td></tr>
+                <tr><th>Leverancier</th><td>{{ $leverancier->Naam ?? '-' }}</td></tr>
+                <tr><th>Postcode leverancier</th><td>{{ $leverancier->Postcode ?? '-' }}</td></tr>
+                <tr><th>Plaats leverancier</th><td>{{ $leverancier->Plaats ?? '-' }}</td></tr>
+                <tr><th>E-mail leverancier</th><td>{{ $leverancier->Email ?? '-' }}</td></tr>
+                <tr><th>Mobiel leverancier</th><td>{{ $leverancier->Mobiel ?? '-' }}</td></tr>
+                <tr><th>Opmerking</th><td>{{ $product->Opmerking ?? '-' }}</td></tr>
+            </tbody>
+        </table>
+
+        <div class="product-detail-actions">
+            <a href="{{ route('behandelingen.edit-product', $product->Id) }}" class="btn btn-primary">Wijzigen</a>
+            <a href="{{ $terugLink }}" class="btn btn-outline">Terug</a>
+        </div>
     </div>
-</div>
+</section>
 @endsection

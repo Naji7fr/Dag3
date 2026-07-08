@@ -466,7 +466,7 @@ BEGIN
      * Relaties: Behandeling -> BehandelingPerVoorraad -> Voorraad -> Product
      * 
      * Retourneert: Id, Naam, Omschrijving, Duurminuten, Prijs, aantal_producten
-     * Sorteervolgorde: Vaste volgorde (Combi > Extensions > Kleuren > Knippen > Overige)
+    * Sorteervolgorde: Vaste volgorde (Combi/Stylen > Extensions > Kleuren > Knippen > Overige)
      */
     SELECT
         b.Id,
@@ -487,7 +487,7 @@ BEGIN
       )
     GROUP BY b.Id, b.Naam, b.Omschrijving, b.Duurminuten, b.Prijs
     ORDER BY CASE
-        WHEN b.Naam = 'Combi behandelingen' THEN 1
+        WHEN b.Naam IN ('Combi behandelingen', 'Stylen') THEN 1
         WHEN b.Naam = 'Extensions' THEN 2
         WHEN b.Naam = 'Kleuren' THEN 3
         WHEN b.Naam = 'Knippen' THEN 4

@@ -1047,3 +1047,457 @@ body.menu-open {
     box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.1);
 }
 
+/* Behandelingen overzicht - pixel-close afstemming op referentie */
+.behandeling-overzicht {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.behandeling-overzicht .breadcrumbs {
+    margin-bottom: 10px;
+    color: #9aa1ac;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.behandeling-overzicht .breadcrumbs a {
+    color: #c41e3a;
+}
+
+.behandeling-overzicht .page-title {
+    margin-bottom: 14px;
+    font-size: 36px;
+    line-height: 1.1;
+}
+
+.behandeling-filter-card {
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+}
+
+.behandeling-filter-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.behandeling-filter-form .behandeling-select-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 230px;
+    max-width: 230px;
+}
+
+.behandeling-filter-form .behandeling-select-group label {
+    font-size: 12px;
+    margin-bottom: 6px;
+    color: #4a4f57;
+    font-weight: 700;
+}
+
+.behandeling-filter-form .search-row {
+    flex-wrap: nowrap;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.behandeling-filter-form .search-row select {
+    min-width: 230px;
+    max-width: 230px;
+    height: 34px;
+    padding: 6px 34px 6px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.behandeling-filter-form .btn {
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 12px;
+    min-height: 34px;
+    line-height: 1;
+}
+
+.behandeling-filter-form .btn-secondary {
+    background: #8d95a1;
+}
+
+.behandeling-table-card {
+    border-radius: 14px;
+    margin-bottom: 0;
+}
+
+.behandeling-table-card .table-meta {
+    padding: 14px 14px 8px;
+    font-size: 13px;
+    color: #8a93a0;
+    font-weight: 600;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+}
+
+.behandeling-table-card .table-meta > span {
+    justify-self: start;
+}
+
+.behandeling-table-card .table-meta .pagination {
+    justify-self: center;
+}
+
+.behandeling-table-card .pagination {
+    gap: 5px;
+}
+
+.behandeling-table-card .pagination a,
+.behandeling-table-card .pagination span {
+    min-width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #a0a7b3;
+    border: 1px solid #e7e9ee;
+}
+
+.behandeling-table-card .pagination .active {
+    color: #fff;
+    border-color: #c41e3a;
+    background: #c41e3a;
+}
+
+.behandeling-table-card .data-table th,
+.behandeling-table-card .data-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+}
+
+.behandeling-table-card .data-table th {
+    font-weight: 700;
+}
+
+.behandeling-table-card .data-table td {
+    color: #5d6673;
+}
+
+.behandeling-table-card .btn-outline {
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #5d8fe6;
+    border-color: #b7cdf4;
+}
+
+@media (max-width: 900px) {
+    .behandeling-overzicht {
+        max-width: 100%;
+    }
+
+    .behandeling-overzicht .page-title {
+        font-size: 30px;
+    }
+
+    .behandeling-filter-form {
+        align-items: stretch;
+    }
+
+    .behandeling-filter-form .search-row {
+        flex-wrap: wrap;
+    }
+
+    .behandeling-filter-form .behandeling-select-group,
+    .behandeling-filter-form .custom-dropdown,
+    .behandeling-filter-form .search-row select {
+        min-width: 0;
+        max-width: none;
+        width: 100%;
+    }
+}
+
+.behandeling-producten-overzicht {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.product-overview-title {
+    color: #c41e3a;
+    font-size: 36px;
+    line-height: 1.1;
+    margin: 0 0 14px;
+    font-weight: 700;
+}
+
+.product-overview-title span {
+    color: #6b7280;
+    font-size: 31px;
+    font-weight: 600;
+}
+
+.behandeling-producten-card {
+    border-radius: 14px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.behandeling-producten-table thead {
+    background: #fff;
+    color: #23262d;
+}
+
+.behandeling-producten-table th,
+.behandeling-producten-table td {
+    font-size: 13px;
+    padding: 10px 10px;
+}
+
+.behandeling-producten-table th {
+    font-weight: 700;
+    border-bottom: 1px solid #eceff4;
+    white-space: nowrap;
+}
+
+.behandeling-producten-table td {
+    color: #4f5967;
+}
+
+.behandeling-producten-table tbody tr:nth-child(even) {
+    background: #fff;
+}
+
+.btn-detail-link {
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    min-height: 0;
+    line-height: 1.1;
+}
+
+.behandeling-producten-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 12px 10px;
+}
+
+.behandeling-producten-actions .btn-outline {
+    padding: 5px 14px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #5d8fe6;
+    border-color: #b7cdf4;
+}
+
+.product-detail-overzicht {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.product-detail-title {
+    color: #c41e3a;
+    font-size: 34px;
+    line-height: 1.1;
+    margin: 0 0 12px;
+    font-weight: 700;
+}
+
+.product-detail-title span {
+    color: #6b7280;
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.product-detail-card {
+    border-radius: 14px;
+    padding: 0;
+    overflow: hidden;
+    max-width: 760px;
+}
+
+.product-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.product-detail-table th,
+.product-detail-table td {
+    padding: 7px 14px;
+    border-bottom: 1px solid #eceff4;
+    font-size: 13px;
+    text-align: left;
+}
+
+.product-detail-table th {
+    width: 30%;
+    color: #2f3947;
+    font-weight: 700;
+}
+
+.product-detail-table td {
+    color: #4f5967;
+}
+
+.product-detail-table tr:last-child th,
+.product-detail-table tr:last-child td {
+    border-bottom: none;
+}
+
+.product-detail-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 10px 8px 8px;
+}
+
+.product-detail-actions .btn {
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    min-height: 0;
+    line-height: 1.2;
+}
+
+.product-edit-overzicht {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.product-edit-title {
+    color: #c41e3a;
+    font-size: 34px;
+    line-height: 1.1;
+    margin: 0 0 12px;
+    font-weight: 700;
+}
+
+.product-edit-title span {
+    color: #6b7280;
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.product-edit-card {
+    max-width: 760px;
+    border-radius: 14px;
+    padding: 16px 14px 10px;
+}
+
+.product-edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 10px;
+}
+
+.product-edit-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #4a4f57;
+}
+
+.product-edit-field .required {
+    color: #c41e3a;
+}
+
+.product-edit-field input {
+    width: 100%;
+    height: 30px;
+    border: 1px solid #d6dbe4;
+    border-radius: 7px;
+    background: #eef1f5;
+    color: #6b7280;
+    font-size: 12px;
+    padding: 6px 9px;
+}
+
+.product-edit-field input[readonly] {
+    cursor: default;
+}
+
+.product-edit-field input:not([readonly]) {
+    background: #fff;
+    color: #2f3947;
+}
+
+.product-edit-field small {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #7b8390;
+}
+
+.form-required-note {
+    margin: 12px 0 0;
+    color: #7b8390;
+    font-size: 12px;
+}
+
+.form-required-note span {
+    color: #c41e3a;
+    font-weight: 700;
+}
+
+.product-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.product-edit-actions .btn {
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 12px;
+    min-height: 0;
+    line-height: 1.2;
+}
+
+.product-edit-error-banner {
+    max-width: 760px;
+    margin-bottom: 10px;
+    background: #f5d3d8;
+    color: #7e3a44;
+    border: 1px solid #f0bcc4;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 10px;
+}
+
+.product-edit-field .input-error {
+    border-color: #e26274 !important;
+    background: #fff;
+}
+
+.product-edit-field .field-error {
+    margin-top: 4px;
+    color: #d04558;
+    font-size: 12px;
+    display: block;
+}
+
+@media (max-width: 900px) {
+    .product-edit-card {
+        max-width: 100%;
+    }
+
+    .product-edit-title {
+        font-size: 30px;
+    }
+
+    .product-edit-title span {
+        font-size: 26px;
+    }
+
+    .product-edit-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
