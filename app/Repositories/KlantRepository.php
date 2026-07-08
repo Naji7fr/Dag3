@@ -21,8 +21,14 @@ class KlantRepository
     {
         try {
             $resultaten = DB::select('CALL sp_Klant_GetAll(?)', [$postcode ?? '']);
+            $klanten = array_map(static fn (object $rij): array => (array) $rij, $resultaten);
 
-            return array_map(static fn (object $rij): array => (array) $rij, $resultaten);
+            Log::info('sp_Klant_GetAll uitgevoerd.', [
+                'postcode' => $postcode,
+                'aantal' => count($klanten),
+            ]);
+
+            return $klanten;
         } catch (PDOException $exception) {
             Log::error('Fout bij ophalen klanten via stored procedure.', [
                 'postcode' => $postcode,
@@ -43,6 +49,10 @@ class KlantRepository
         try {
             $resultaten = DB::select('CALL sp_Klant_GetById(?)', [$klantId]);
             $klant = $resultaten[0] ?? null;
+
+            if ($klant === null) {
+                Log::warning('sp_Klant_GetById leverde geen resultaat.', ['klantId' => $klantId]);
+            }
 
             return $klant !== null ? (array) $klant : null;
         } catch (PDOException $exception) {
@@ -65,7 +75,7 @@ class KlantRepository
 
             return ((int) ($resultaten[0]->Aantal ?? 0)) > 0;
         } catch (PDOException $exception) {
-            Log::error('Fout bij e-mail uniciteit controle.', [
+            Log::error('Fout bij e-mail uniciteit controle via sp_Klant_IsContactEmailInUse.', [
                 'email' => $email,
                 'contactId' => $contactId,
                 'message' => $exception->getMessage(),
@@ -99,9 +109,12 @@ class KlantRepository
                 $klantData['mobiel'],
             ]);
 
-            Log::info('Klantgegevens succesvol bijgewerkt.', ['klantId' => $klantId]);
+            Log::info('sp_Klant_Update succesvol uitgevoerd.', [
+                'klantId' => $klantId,
+                'contactId' => $contactId,
+            ]);
         } catch (Throwable $exception) {
-            Log::error('Fout bij bijwerken klant via stored procedure.', [
+            Log::error('Fout bij sp_Klant_Update.', [
                 'klantId' => $klantId,
                 'message' => $exception->getMessage(),
             ]);
